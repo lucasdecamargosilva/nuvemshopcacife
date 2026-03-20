@@ -125,8 +125,8 @@
             border: none;
             padding: 0;
             cursor: pointer;
-            width: 62px;
-            height: 62px;
+            width: 85px;
+            height: 85px;
             display: flex;
             align-items: center;
             justify-content: center;
