@@ -125,8 +125,8 @@
             border: none;
             padding: 0;
             cursor: pointer;
-            width: 85px;
-            height: 85px;
+            width: 72px;
+            height: 72px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -152,6 +152,26 @@
             }
             #q-modal-ia {
                 padding: 0 !important;
+            }
+            .q-content-scroll {
+                padding: 20px 16px !important;
+            }
+            .q-lead-form {
+                margin: 15px 0 10px !important;
+                gap: 12px !important;
+            }
+            .q-group {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow: hidden;
+            }
+            .q-input {
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+            }
+            .q-btn-black {
+                margin-top: 12px !important;
             }
         }
 
@@ -204,7 +224,7 @@
         .q-input-row { display: flex; gap: 15px; }
         .q-group { width: 100%; flex: 1; }
         .q-group label { display: block; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; color: var(--q-text); margin-bottom: 8px; text-transform: uppercase; }
-        .q-input { width: 100%; padding: 22px 18px; border: 1px solid var(--q-border); font-size: 16px; font-family: 'Inter', sans-serif; background: transparent; color: var(--q-text); outline: none; box-sizing: border-box; -webkit-appearance: none; appearance: none; border-radius: 0; }
+        .q-input { width: 100%; min-width: 0; max-width: 100%; padding: 22px 18px; border: 1px solid var(--q-border); font-size: 16px; font-family: 'Inter', sans-serif; background: transparent; color: var(--q-text); outline: none; box-sizing: border-box; -webkit-appearance: none; -moz-appearance: none; appearance: none; border-radius: 0; }
         .q-input:focus { border-width: 2px; padding: 14px; }
         .q-input-hint { font-size: 9px; color: var(--q-text-light); letter-spacing: 0.5px; margin-top: 6px; }
         .q-btn-black { background: var(--q-primary); color: var(--q-bg); border: 1px solid var(--q-primary); width: 100%; padding: 18px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 20px; transition: 0.3s; }
