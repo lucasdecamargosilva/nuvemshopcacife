@@ -156,7 +156,7 @@
             justify-content: center;
             gap: 6px;
             width: 100%;
-            padding: 8px 14px;
+            padding: 14px 14px;
             background: transparent;
             color: #000;
             border: 1px solid #000;
@@ -167,7 +167,8 @@
             text-transform: uppercase;
             cursor: pointer;
             transition: background 0.3s, color 0.3s;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+            box-sizing: border-box;
         }
         .q-btn-inline-provador:hover {
             background: #000;
