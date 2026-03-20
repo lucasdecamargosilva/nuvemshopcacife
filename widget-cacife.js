@@ -703,8 +703,8 @@
             const today = new Date().toISOString().slice(0, 10);
             const limitKey = 'pl_gen_' + today;
             const usedToday = parseInt(localStorage.getItem(limitKey) || '0', 10);
-            if (usedToday >= 2) {
-                alert('Limite de 2 provas por dia atingido. Tente novamente amanhã!');
+            if (usedToday >= 3) {
+                alert('Limite de 3 provas por dia atingido. Tente novamente amanhã!');
                 return;
             }
 
