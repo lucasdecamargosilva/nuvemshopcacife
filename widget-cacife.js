@@ -222,33 +222,6 @@
         .q-content-scroll::-webkit-scrollbar { width: 4px; }
         .q-content-scroll::-webkit-scrollbar-thumb { background: #e5e5e5; }
 
-        #q-step-confirm {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(2px);
-            z-index: 200;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .q-confirm-box {
-            background: #ffffff;
-            width: 100%;
-            max-width: 380px;
-            padding: 40px 30px;
-            border: 1px solid #000;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            animation: q-popup-zoom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        @keyframes q-popup-zoom {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
 
 
         /* ════════════════════════════════════════════
@@ -369,15 +342,6 @@
                         <button class="q-btn-black" id="q-btn-generate" disabled>Ver no meu corpo</button>
                     </div>
 
-                    <!-- PASSO DE CONFIRMAÇÃO (CENTERED POP-UP) -->
-                    <div id="q-step-confirm">
-                        <div class="q-confirm-box">
-                            <h2 style="margin:0 0 30px 0;font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#000;line-height:1.4;">Deseja gerar a prova virtual?</h2>
-
-                            <button class="q-btn-black" id="q-btn-confirm-yes" style="margin-top:0; padding: 20px 0;">SIM, GERAR FOTO</button>
-                            <button class="q-btn-outline" id="q-btn-confirm-no" style="margin-top:15px; border-color:#ef4444; color:#ef4444; padding: 18px 0; background:none;">NÃO, QUERO TROCAR</button>
-                        </div>
-                    </div>
 
 
                     <div style="display:none;padding:60px 0;text-align:center;" id="q-loading-box">
@@ -511,9 +475,6 @@
             }
         }
         const genBtn = document.getElementById('q-btn-generate');
-        const confirmStep = document.getElementById('q-step-confirm');
-        const confirmBtnYes = document.getElementById('q-btn-confirm-yes');
-        const confirmBtnNo = document.getElementById('q-btn-confirm-no');
         const uploadStep = document.getElementById('q-step-upload');
 
         const closeBtn = document.getElementById('q-close-btn');
@@ -700,17 +661,8 @@
         };
 
 
-        genBtn.onclick = () => {
+        genBtn.onclick = async () => {
             if (!userPhoto) return;
-            confirmStep.style.display = 'flex';
-        };
-
-        confirmBtnNo.onclick = () => {
-            confirmStep.style.display = 'none';
-        };
-
-        confirmBtnYes.onclick = async () => {
-            confirmStep.style.display = 'none';
             // 🚨 VALIDAÇÃO BÁSICA NO FRONT 🚨
             const keyToUse = window.PROVOU_LEVOU_API_KEY;
             if (!keyToUse || keyToUse.includes("COLOQUE_A_CHAVE_AQUI")) {
