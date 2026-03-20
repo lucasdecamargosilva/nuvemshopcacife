@@ -485,7 +485,7 @@
 
         const modal = document.getElementById('q-modal-ia');
 
-        // ── Botão inline abaixo dos tamanhos ──
+        // ── Botão inline acima do botão de compra ──
         const inlineBtn = document.createElement('button');
         inlineBtn.className = 'q-btn-inline-provador';
         inlineBtn.type = 'button';
@@ -507,7 +507,7 @@
         inlineSvg.appendChild(circle1);
         inlineBtn.appendChild(inlineSvg);
 
-        const inlineBtnText = document.createTextNode('Provador Virtual');
+        const inlineBtnText = document.createTextNode('Experimentar Virtual');
         inlineBtn.appendChild(inlineBtnText);
 
         inlineBtn.addEventListener('click', () => {
@@ -515,9 +515,20 @@
             lockBodyScroll();
         });
 
-        const variantsContainer = document.querySelector('.js-product-variants');
-        if (variantsContainer) {
-            variantsContainer.parentNode.insertBefore(inlineBtn, variantsContainer.nextSibling);
+        // Posiciona acima do botão de compra
+        const buyBtn = document.querySelector('.js-addtocart, .btn-add-to-cart, [data-component="product.add-to-cart"]');
+        if (buyBtn) {
+            const buyContainer = buyBtn.closest('div');
+            if (buyContainer) {
+                buyContainer.parentNode.insertBefore(inlineBtn, buyContainer);
+            } else {
+                buyBtn.parentNode.insertBefore(inlineBtn, buyBtn);
+            }
+        } else {
+            const variantsContainer = document.querySelector('.js-product-variants');
+            if (variantsContainer) {
+                variantsContainer.parentNode.insertBefore(inlineBtn, variantsContainer.nextSibling);
+            }
         }
         const genBtn = document.getElementById('q-btn-generate');
         const confirmStep = document.getElementById('q-step-confirm');
