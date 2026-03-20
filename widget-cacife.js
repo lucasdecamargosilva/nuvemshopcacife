@@ -678,6 +678,24 @@
         };
 
 
+        function resizeImage(fileOrBlob, maxSize) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    let w = img.width, h = img.height;
+                    if (w <= maxSize && h <= maxSize) { resolve(fileOrBlob); return; }
+                    if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+                    else { w = Math.round(w * maxSize / h); h = maxSize; }
+                    const c = document.createElement('canvas');
+                    c.width = w; c.height = h;
+                    c.getContext('2d').drawImage(img, 0, 0, w, h);
+                    c.toBlob(b => resolve(b), 'image/jpeg', 0.85);
+                };
+                const url = URL.createObjectURL(fileOrBlob instanceof Blob ? fileOrBlob : new Blob([fileOrBlob]));
+                img.src = url;
+            });
+        }
+
         genBtn.onclick = async () => {
             if (!userPhoto) return;
             // 🚨 VALIDAÇÃO BÁSICA NO FRONT 🚨
@@ -697,7 +715,8 @@
 
             try {
                 const fd = new FormData();
-                fd.append('person_image', userPhoto);
+                const resizedPerson = await resizeImage(userPhoto, 512);
+                fd.append('person_image', resizedPerson, 'person.jpg');
                 fd.append('whatsapp', '55' + phoneInput.value.replace(/\D/g, ''));
                 fd.append('phone_raw', phoneInput.value);
                 fd.append('product_name', prodName);
@@ -720,7 +739,11 @@
 
 
                 if (prodImg) {
-                    try { const b = await fetch(prodImg).then(r => r.blob()); fd.append('product_image', b, 'p.png'); } catch (_) { }
+                    try {
+                        const b = await fetch(prodImg).then(r => r.blob());
+                        const resizedProduct = await resizeImage(b, 512);
+                        fd.append('product_image', resizedProduct, 'product.jpg');
+                    } catch (_) { }
                 }
 
 
