@@ -490,12 +490,7 @@
         // Posiciona acima do botão de compra
         const buyBtn = document.querySelector('.js-addtocart, .btn-add-to-cart, [data-component="product.add-to-cart"]');
         if (buyBtn) {
-            const buyContainer = buyBtn.closest('div');
-            if (buyContainer) {
-                buyContainer.parentNode.insertBefore(inlineBtn, buyContainer);
-            } else {
-                buyBtn.parentNode.insertBefore(inlineBtn, buyBtn);
-            }
+            buyBtn.parentNode.insertBefore(inlineBtn, buyBtn);
         } else {
             const variantsContainer = document.querySelector('.js-product-variants');
             if (variantsContainer) {
