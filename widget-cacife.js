@@ -153,78 +153,15 @@
             #q-modal-ia {
                 padding: 0 !important;
             }
-            .q-content-scroll {
-                padding: 16px 16px !important;
-                display: flex !important;
-                flex-direction: column !important;
-                justify-content: center !important;
-            }
-            #q-header-provador h1 {
-                font-size: 16px !important;
-                margin-bottom: 6px !important;
-            }
-            #q-header-provador img {
-                height: 22px !important;
-            }
-            .q-lead-form {
-                margin: 10px 0 8px !important;
-                gap: 8px !important;
-            }
             .q-group {
                 width: 100% !important;
                 max-width: 100% !important;
                 overflow: hidden;
             }
-            .q-group label {
-                font-size: 9px !important;
-                margin-bottom: 5px !important;
-            }
             .q-input {
                 width: 100% !important;
                 min-width: 0 !important;
                 max-width: 100% !important;
-                padding: 16px 14px !important;
-                font-size: 16px !important;
-            }
-            .q-input:focus {
-                padding: 15px 13px !important;
-            }
-            #q-upload-row {
-                margin-top: 16px !important;
-                gap: 14px !important;
-            }
-            #q-photo-selector-group {
-                margin-top: 12px !important;
-            }
-            #q-photo-selector-group > label {
-                font-size: 11px !important;
-                margin-bottom: 10px !important;
-            }
-            #q-trigger-upload, #q-pre-view {
-                width: 100px !important;
-                height: 130px !important;
-            }
-            #q-trigger-upload i {
-                font-size: 26px !important;
-                margin-bottom: 6px !important;
-            }
-            #q-trigger-upload span {
-                font-size: 8px !important;
-            }
-            #q-accept-terms-label, .q-content-scroll label[style*="align-items:flex-start"] {
-                margin-top: 14px !important;
-                font-size: 11px !important;
-            }
-            .q-btn-black {
-                margin-top: 10px !important;
-                padding: 14px !important;
-                font-size: 10px !important;
-            }
-            .q-powered-footer {
-                padding: 12px !important;
-            }
-            .q-powered-footer img {
-                height: 18px !important;
             }
         }
 
@@ -273,7 +210,7 @@
         .q-tips-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px 0; margin: 20px 0; border-top: 1px solid var(--q-gray); border-bottom: 1px solid var(--q-gray); }
         .q-tip-item { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 9px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--q-text-light); }
         .q-tip-item i { color: var(--q-primary); font-size: 20px; }
-        .q-lead-form { width: 100%; box-sizing: border-box; margin: 30px 0 20px; display: flex; flex-direction: column; gap: 20px; text-align: center; align-items: stretch; }
+        .q-lead-form { width: 100%; box-sizing: border-box; margin: 30px 0 20px; display: flex; flex-direction: column; gap: 20px; text-align: left; align-items: stretch; }
         .q-input-row { display: flex; gap: 15px; }
         .q-group { width: 100%; flex: 1; }
         .q-group label { display: block; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; color: var(--q-text); margin-bottom: 8px; text-transform: uppercase; }
