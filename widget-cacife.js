@@ -562,8 +562,12 @@
                 if (!src || src.includes('data:image')) return;
 
                 const lowerSrc = src.toLowerCase();
-                const invalidKeywords = ['provador', 'logo', 'provoulevou', 'icon', 'play', 'video'];
+                const invalidKeywords = ['provador', 'logo', 'provoulevou', 'icon', 'play', 'video', 'transparent', 'placeholder', 'blank', 'spacer'];
                 if (invalidKeywords.some(kw => lowerSrc.includes(kw))) return;
+
+                // Filter out tiny images (1x1 pixels, spacers, etc.)
+                if (img.naturalWidth > 0 && img.naturalWidth < 50) return;
+                if (img.naturalHeight > 0 && img.naturalHeight < 50) return;
 
                 let cleanSrc = src.split('?')[0].replace(/-\d+-\d+\.webp|_\d+x\d+/, '');
 
