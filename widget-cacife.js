@@ -472,9 +472,13 @@
         const inlineBtnText = document.createTextNode('Provador Virtual');
         inlineBtn.appendChild(inlineBtnText);
 
-        inlineBtn.addEventListener('click', () => {
-            modal.style.display = 'flex';
-            lockBodyScroll();
+        inlineBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const prodName = document.querySelector('h1.product__title,.product-single__title,h1')?.innerText || document.title;
+            applyProduct(detectProduct(prodName));
+            populateImageSelector();
+            openModal();
         });
 
         // Posiciona acima do botão de compra
