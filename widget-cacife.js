@@ -338,17 +338,6 @@
                             <div id="q-product-images-container" style="display:flex; gap:15px; justify-content: center;"></div>
                         </div>
 
-                        <div style="font-weight:700; color:#854d0e; font-size:10px; text-align:center; width:100%; display:block; margin-top:20px; line-height:1.4; text-transform:uppercase; letter-spacing:0.5px; background: #fef9c3; padding: 15px; border-radius: 8px; border: 1px solid #fef3c7; box-sizing: border-box;">
-                            <span style="color:#eab308; font-size:12px;">⚠️</span> SE VOCÊ ESCOLHEU A PEÇA DE COSTAS, ENVIE UMA FOTO SUA DE COSTAS TAMBÉM!
-                        </div>
-
-                        <p style="margin:25px 0 15px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--q-text-light);text-align:center;">Sua foto deve seguir estes requisitos:</p>
-                        <div class="q-tips-grid" style="margin-top:0;">
-                            <div class="q-tip-item"><i class="ph ph-t-shirt"></i><span>Com Roupa</span></div>
-                            <div class="q-tip-item"><i class="ph ph-person"></i><span>Corpo Inteiro</span></div>
-                            <div class="q-tip-item"><i class="ph ph-sun"></i><span>Boa Luz</span></div>
-                        </div>
-
                         <div style="display:flex;gap:20px;justify-content:center;margin-top:30px;">
                             <div id="q-trigger-upload" style="width:120px;height:160px;border:1px solid var(--q-border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:var(--q-gray);transition:0.3s;">
                                 <i class="ph ph-camera-plus" style="font-size:32px;color:var(--q-primary);margin-bottom:10px;"></i>
@@ -369,22 +358,7 @@
                     <!-- PASSO DE CONFIRMAÇÃO (CENTERED POP-UP) -->
                     <div id="q-step-confirm">
                         <div class="q-confirm-box">
-                            <h2 style="margin:0 0 30px 0;font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#000;line-height:1.4;">Sua foto segue estes requisitos?</h2>
-
-                            <div class="q-tips-grid" style="margin-bottom:35px; border-top:none; border-bottom:none; padding:0;">
-                                <div class="q-tip-item">
-                                    <i class="ph ph-t-shirt" style="font-size:24px;"></i>
-                                    <span style="font-size:8px;">Com Roupa</span>
-                                </div>
-                                <div class="q-tip-item">
-                                    <i class="ph ph-person" style="font-size:24px;"></i>
-                                    <span style="font-size:8px;">Corpo Inteiro</span>
-                                </div>
-                                <div class="q-tip-item">
-                                    <i class="ph ph-sun" style="font-size:24px;"></i>
-                                    <span style="font-size:8px;">Boa Luz</span>
-                                </div>
-                            </div>
+                            <h2 style="margin:0 0 30px 0;font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#000;line-height:1.4;">Deseja gerar a prova virtual?</h2>
 
                             <button class="q-btn-black" id="q-btn-confirm-yes" style="margin-top:0; padding: 20px 0;">SIM, GERAR FOTO</button>
                             <button class="q-btn-outline" id="q-btn-confirm-no" style="margin-top:15px; border-color:#ef4444; color:#ef4444; padding: 18px 0; background:none;">NÃO, QUERO TROCAR</button>
@@ -407,10 +381,7 @@
                         <div id="q-result-actions-col" style="width:100%;">
                             <span class="q-res-title" style="display:none; margin-bottom:40px;">Provador Virtual</span>
 
-                            <div class="q-res-note" style="display:none;">
-                                <i class="ph ph-info"></i>
-                                <span>A simulação AI considera o caimento do tecido baseado na sua estrutura corporal informada.</span>
-                            </div>
+                            <div class="q-res-note" style="display:none;"></div>
                             <button class="q-btn-outline" id="q-btn-back">Voltar ao Produto</button>
                             <p class="q-res-mobile-only" style="margin-top:30px;font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--q-text-light);cursor:pointer;text-decoration:underline;text-underline-offset:4px;" id="q-retry-btn">Tentar outra foto</p>
                         </div>
