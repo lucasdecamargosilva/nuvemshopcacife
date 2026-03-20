@@ -1,4 +1,6 @@
 (function () {
+    // TEMPORARIAMENTE DESATIVADO
+    return;
     // ===============================================
     // 0. CHUMBAR A API KEY AQUI DIRETO NO CÓDIGO
     // ===============================================
