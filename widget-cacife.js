@@ -142,6 +142,19 @@
             overflow: visible;
         }
 
+        @media (max-width: 767px) {
+            .q-card-ia {
+                max-width: 100% !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-height: 100vh !important;
+                border: none !important;
+            }
+            #q-modal-ia {
+                padding: 0 !important;
+            }
+        }
+
         @media (min-width: 768px) {
             .q-btn-trigger-ia {
                 width: 65px;
