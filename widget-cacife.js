@@ -156,7 +156,7 @@
             justify-content: center;
             gap: 6px;
             width: 100%;
-            padding: 14px 14px;
+            padding: 10px 14px;
             background: transparent;
             color: #000;
             border: 1px solid #000;
@@ -479,7 +479,7 @@
         inlineSvg.appendChild(circle1);
         inlineBtn.appendChild(inlineSvg);
 
-        const inlineBtnText = document.createTextNode('Experimentar Virtual');
+        const inlineBtnText = document.createTextNode('Provador Virtual');
         inlineBtn.appendChild(inlineBtnText);
 
         inlineBtn.addEventListener('click', () => {
