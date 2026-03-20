@@ -698,6 +698,16 @@
 
         genBtn.onclick = async () => {
             if (!userPhoto) return;
+
+            // 🚫 LIMITE DE 2 GERAÇÕES POR DIA (localStorage)
+            const today = new Date().toISOString().slice(0, 10);
+            const limitKey = 'pl_gen_' + today;
+            const usedToday = parseInt(localStorage.getItem(limitKey) || '0', 10);
+            if (usedToday >= 2) {
+                alert('Limite de 2 provas por dia atingido. Tente novamente amanhã!');
+                return;
+            }
+
             // 🚨 VALIDAÇÃO BÁSICA NO FRONT 🚨
             const keyToUse = window.PROVOU_LEVOU_API_KEY;
             if (!keyToUse || keyToUse.includes("COLOQUE_A_CHAVE_AQUI")) {
@@ -769,6 +779,7 @@
 
                 if (res.ok) {
                     const blob = await res.blob();
+                    localStorage.setItem(limitKey, (usedToday + 1).toString());
                     document.getElementById('q-loading-box').style.display = 'none';
                     document.getElementById('q-final-view-img').src = URL.createObjectURL(blob);
 
