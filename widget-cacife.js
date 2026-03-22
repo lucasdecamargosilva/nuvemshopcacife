@@ -6,6 +6,8 @@
     window.PROVOU_LEVOU_API_KEY = apiKey;
 
     const WEBHOOK_PROVA = 'https://n8n.segredosdodrop.com/webhook/gerador-oculos';
+    const WEBHOOK_PIX = 'https://n8n.segredosdodrop.com/webhook/cacife-pix';
+    const WEBHOOK_PIX_STATUS = 'https://n8n.segredosdodrop.com/webhook/cacife-pix-status';
     const SIZES_TOP = ['XXP', 'XP', 'P', 'M', 'G', 'XG', 'XXG', '3XG', '4XG', '5XG'];
     const SIZES_BOTTOM = ['36/XXP', '38/XP', '40/P', '42/M', '44/G', '46/XG', '48/XXG', '50/3XG', '52/4XG', '54/5XG'];
     const SIZES_BOTTOM_SW = ['XXP', 'XP', 'P', 'M', 'G', 'XG', 'XXG', '3XG', '4XG', '5XG'];
@@ -235,6 +237,21 @@
         .q-content-scroll::-webkit-scrollbar { width: 4px; }
         .q-content-scroll::-webkit-scrollbar-thumb { background: #e5e5e5; }
 
+        /* ── TELA PIX ─────────────────────────────────────────────────────── */
+        #q-step-pix { display:none; text-align:center; padding:20px 0; }
+        #q-step-pix h2 { font-size:16px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin:0 0 6px; }
+        #q-step-pix .q-pix-subtitle { font-size:11px; color:var(--q-text-light); letter-spacing:1px; margin-bottom:24px; }
+        #q-step-pix .q-pix-qr { width:200px; height:200px; margin:0 auto 16px; border:1px solid var(--q-border); padding:8px; }
+        #q-step-pix .q-pix-qr img { width:100%; height:100%; }
+        #q-step-pix .q-pix-copiacola { display:flex; gap:8px; margin:0 auto 20px; max-width:340px; }
+        #q-step-pix .q-pix-copiacola input { flex:1; padding:10px; border:1px solid var(--q-border); font-size:11px; font-family:'Inter',sans-serif; background:var(--q-gray); outline:none; min-width:0; }
+        #q-step-pix .q-pix-copiacola button { padding:10px 16px; background:var(--q-primary); color:#fff; border:1px solid var(--q-primary); font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
+        #q-step-pix .q-pix-status { font-size:10px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--q-text-light); margin-bottom:16px; }
+        @keyframes q-pix-pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+        #q-step-pix .q-pix-waiting { animation: q-pix-pulse 1.5s infinite ease-in-out; color:#f59e0b; }
+        #q-step-pix .q-pix-approved { color:#22c55e; }
+        #q-step-pix .q-pix-cancel { font-size:10px; color:var(--q-text-light); text-decoration:underline; cursor:pointer; margin-top:10px; }
+
 
 
         /* ════════════════════════════════════════════
@@ -356,6 +373,18 @@
                     </div>
 
 
+
+                    <div id="q-step-pix">
+                        <h2>Prova Extra</h2>
+                        <p class="q-pix-subtitle">Você atingiu o limite de 3 provas grátis.<br>Pague R$1 via PIX para gerar mais uma:</p>
+                        <div class="q-pix-qr"><img id="q-pix-qr-img" alt="QR Code PIX"></div>
+                        <div class="q-pix-copiacola">
+                            <input type="text" id="q-pix-code" readonly placeholder="Código PIX...">
+                            <button id="q-pix-copy-btn">Copiar</button>
+                        </div>
+                        <div id="q-pix-status-msg" class="q-pix-status q-pix-waiting">Aguardando pagamento...</div>
+                        <p class="q-pix-cancel" id="q-pix-cancel">Cancelar</p>
+                    </div>
 
                     <div style="display:none;padding:60px 0;text-align:center;" id="q-loading-box">
                         <div style="font-weight:600;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;animation:q-pulse-text 1.5s infinite ease-in-out;">Gerando Prova Virtual...</div>
@@ -696,19 +725,86 @@
             });
         }
 
-        genBtn.onclick = async () => {
-            if (!userPhoto) return;
+        // ── PIX: polling e controle ──
+        let pixPollingTimer = null;
 
-            // 🚫 LIMITE DE 2 GERAÇÕES POR DIA (localStorage)
+        function stopPixPolling() {
+            if (pixPollingTimer) { clearInterval(pixPollingTimer); pixPollingTimer = null; }
+        }
+
+        function showPixScreen() {
+            uploadStep.style.display = 'none';
+            document.getElementById('q-step-pix').style.display = 'block';
+            document.getElementById('q-pix-status-msg').textContent = 'Aguardando pagamento...';
+            document.getElementById('q-pix-status-msg').className = 'q-pix-status q-pix-waiting';
+        }
+
+        function hidePixScreen() {
+            stopPixPolling();
+            document.getElementById('q-step-pix').style.display = 'none';
+        }
+
+        async function createPixAndPoll() {
+            showPixScreen();
+            try {
+                const resp = await fetch(WEBHOOK_PIX, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'cliente@provoulevou.com.br' })
+                });
+                const pix = await resp.json();
+                if (!pix.payment_id || !pix.qr_code) throw new Error('PIX inválido');
+
+                document.getElementById('q-pix-qr-img').src = 'data:image/png;base64,' + pix.qr_code_base64;
+                document.getElementById('q-pix-code').value = pix.qr_code;
+
+                // Polling a cada 3s por até 5min
+                let attempts = 0;
+                pixPollingTimer = setInterval(async () => {
+                    attempts++;
+                    if (attempts > 100) { stopPixPolling(); return; }
+                    try {
+                        const sr = await fetch(WEBHOOK_PIX_STATUS + '?payment_id=' + pix.payment_id);
+                        const st = await sr.json();
+                        if (st.status === 'approved') {
+                            stopPixPolling();
+                            document.getElementById('q-pix-status-msg').textContent = 'Pagamento confirmado!';
+                            document.getElementById('q-pix-status-msg').className = 'q-pix-status q-pix-approved';
+                            setTimeout(() => {
+                                hidePixScreen();
+                                runGeneration(true);
+                            }, 1200);
+                        }
+                    } catch (_) {}
+                }, 3000);
+            } catch (e) {
+                hidePixScreen();
+                uploadStep.style.display = 'block';
+                alert('Erro ao gerar PIX. Tente novamente.');
+            }
+        }
+
+        // Botão copiar PIX
+        document.getElementById('q-pix-copy-btn').onclick = () => {
+            const code = document.getElementById('q-pix-code').value;
+            navigator.clipboard.writeText(code).then(() => {
+                document.getElementById('q-pix-copy-btn').textContent = 'Copiado!';
+                setTimeout(() => { document.getElementById('q-pix-copy-btn').textContent = 'Copiar'; }, 2000);
+            });
+        };
+
+        // Botão cancelar PIX
+        document.getElementById('q-pix-cancel').onclick = () => {
+            hidePixScreen();
+            uploadStep.style.display = 'block';
+        };
+
+        // ── GERAÇÃO PRINCIPAL ──
+        async function runGeneration(paidExtra) {
             const today = new Date().toISOString().slice(0, 10);
             const limitKey = 'pl_gen_' + today;
             const usedToday = parseInt(localStorage.getItem(limitKey) || '0', 10);
-            if (usedToday >= 3) {
-                alert('Limite de 3 provas por dia atingido. Tente novamente amanhã!');
-                return;
-            }
 
-            // 🚨 VALIDAÇÃO BÁSICA NO FRONT 🚨
             const keyToUse = window.PROVOU_LEVOU_API_KEY;
             if (!keyToUse || keyToUse.includes("COLOQUE_A_CHAVE_AQUI")) {
                 alert("Erro: API Key não configurada neste script.");
@@ -718,10 +814,8 @@
             const prodImg = selectedProductImgUrl || (document.querySelector('meta[property="og:image"]')?.content || '');
             const prodName = document.querySelector('h1.product__title,.product-single__title,h1')?.innerText || document.title;
 
-
             uploadStep.style.display = 'none';
             document.getElementById('q-loading-box').style.display = 'block';
-
 
             try {
                 const fd = new FormData();
@@ -732,10 +826,7 @@
                 fd.append('product_name', prodName);
                 fd.append('product_type', currentProduct.category);
                 fd.append('product_fit', currentProduct.fit);
-
-                // 👉 INJETA A CHAVE NO FORM DATA PRO N8N LER
                 fd.append('api_key', keyToUse);
-
 
                 if (currentProduct.category === 'top') {
                     fd.append('height', '');
@@ -747,7 +838,6 @@
                     fd.append('quadril', '');
                 }
 
-
                 if (prodImg) {
                     try {
                         const b = await fetch(prodImg).then(r => r.blob());
@@ -756,9 +846,7 @@
                     } catch (_) { }
                 }
 
-
                 calculateFinalSize();
-
 
                 const res = await fetch(WEBHOOK_PROVA, { method: 'POST', body: fd });
 
@@ -779,18 +867,13 @@
 
                 if (res.ok) {
                     const blob = await res.blob();
-                    localStorage.setItem(limitKey, (usedToday + 1).toString());
+                    if (!paidExtra) {
+                        localStorage.setItem(limitKey, (usedToday + 1).toString());
+                    }
                     document.getElementById('q-loading-box').style.display = 'none';
                     document.getElementById('q-final-view-img').src = URL.createObjectURL(blob);
-
-
-                    // Size recomendation desativado. DOM info removido da tela.
-
-
                     document.querySelector('.q-card-ia').classList.add('is-result');
                     document.getElementById('q-step-result').style.display = 'flex';
-
-
                 } else if (res.status === 401 || res.status === 403) {
                     document.getElementById('q-loading-box').style.display = 'none';
                     document.getElementById('q-step-upload').style.display = 'block';
@@ -801,6 +884,21 @@
                 document.getElementById('q-step-upload').style.display = 'block';
                 alert('Ocorreu um erro ao processar sua imagem (ou chave/servidor indisponíveis). Tente novamente.');
             }
+        }
+
+        genBtn.onclick = async () => {
+            if (!userPhoto) return;
+
+            const today = new Date().toISOString().slice(0, 10);
+            const limitKey = 'pl_gen_' + today;
+            const usedToday = parseInt(localStorage.getItem(limitKey) || '0', 10);
+
+            if (usedToday >= 3) {
+                createPixAndPoll();
+                return;
+            }
+
+            runGeneration(false);
         };
     }
 
