@@ -278,14 +278,13 @@
         .q-input {
             display: block;
             width: 100%;
-            height: 72px;
-            padding: 0 20px;
+            height: 56px;
+            padding: 0 16px;
             margin: 0;
             background: transparent;
             border: 1px solid #000;
             border-radius: 0;
-            font-size: 22px;
-            font-weight: 500;
+            font-size: 16px;
             font-family: 'Inter', sans-serif;
             color: #000;
             text-align: center;
@@ -294,9 +293,18 @@
             -moz-appearance: none;
             appearance: none;
             box-sizing: border-box;
-            letter-spacing: 0.02em;
         }
-        .q-input:focus { border-width: 2px; padding: 0 19px; }
+        .q-input:focus { border-width: 2px; padding: 0 15px; }
+        @media (max-width: 767px) {
+            .q-input {
+                height: 72px !important;
+                padding: 0 20px !important;
+                font-size: 22px !important;
+                font-weight: 500 !important;
+                letter-spacing: 0.02em !important;
+            }
+            .q-input:focus { padding: 0 19px !important; }
+        }
         .q-input::placeholder { color: #999; }
 
         /* Error message */
