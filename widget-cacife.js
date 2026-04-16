@@ -640,17 +640,41 @@
         function openModal() {
             modal.style.display = 'flex';
             lockBodyScroll();
-            // Force layout recomputation to neutralize any layout interference
-            // (ex: videos causing viewport/body layout to be in an unexpected state)
-            requestAnimationFrame(() => {
+            // Força recálculo da largura do input para neutralizar layouts quebrados
+            // (ex: vídeo no produto afetando o viewport/body do iOS Safari)
+            const fixInputWidth = () => {
                 const phone = document.getElementById('q-phone');
-                if (phone) {
-                    phone.style.width = '';
-                    void phone.offsetWidth;
-                    phone.style.width = '100%';
+                if (!phone) return;
+                const group = phone.closest('.q-group');
+                if (!group) return;
+                const available = group.getBoundingClientRect().width;
+                if (available > 0) {
+                    phone.style.width = available + 'px';
+                    phone.style.maxWidth = available + 'px';
+                    phone.style.boxSizing = 'border-box';
                 }
+            };
+            requestAnimationFrame(() => {
+                fixInputWidth();
+                setTimeout(fixInputWidth, 100);
+                setTimeout(fixInputWidth, 300);
             });
         }
+
+        // Recalcula largura do input em resize/orientationchange
+        window.addEventListener('resize', () => {
+            const modalEl = document.getElementById('q-modal-ia');
+            if (!modalEl || modalEl.style.display !== 'flex') return;
+            const phone = document.getElementById('q-phone');
+            if (!phone) return;
+            const group = phone.closest('.q-group');
+            if (!group) return;
+            const available = group.getBoundingClientRect().width;
+            if (available > 0) {
+                phone.style.width = available + 'px';
+                phone.style.maxWidth = available + 'px';
+            }
+        });
 
 
         function closeModal() {
