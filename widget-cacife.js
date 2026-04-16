@@ -278,13 +278,14 @@
         .q-input {
             display: block;
             width: 100%;
-            height: 56px;
-            padding: 0 16px;
+            height: 72px;
+            padding: 0 20px;
             margin: 0;
             background: transparent;
             border: 1px solid #000;
             border-radius: 0;
-            font-size: 16px;
+            font-size: 22px;
+            font-weight: 500;
             font-family: 'Inter', sans-serif;
             color: #000;
             text-align: center;
@@ -293,8 +294,9 @@
             -moz-appearance: none;
             appearance: none;
             box-sizing: border-box;
+            letter-spacing: 0.02em;
         }
-        .q-input:focus { border-width: 2px; padding: 0 15px; }
+        .q-input:focus { border-width: 2px; padding: 0 19px; }
         .q-input::placeholder { color: #999; }
 
         /* Error message */
