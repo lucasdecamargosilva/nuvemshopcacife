@@ -461,18 +461,35 @@
 
 
         const imgContainers = ['.js-product-slide', '.product-image-column', '.js-swiper-product', '[data-store^="product-image-"]', '.product__media-wrapper', '.product-gallery__media', '.product__media', '.product-image-main', '.product-media-container', '[data-media-id]', '.product__media-item', '.product-gallery', '.product-single__media', '.media-gallery'];
-        let placed = false;
-        for (const sel of imgContainers) {
-            const el = document.querySelector(sel);
-            if (el) {
-                if (window.getComputedStyle(el).position === 'static') el.style.position = 'relative';
-                el.appendChild(openBtn);
-                placed = true; break;
+
+        function tryPlaceTriggerBtn() {
+            for (const sel of imgContainers) {
+                const el = document.querySelector(sel);
+                if (el) {
+                    if (window.getComputedStyle(el).position === 'static') el.style.position = 'relative';
+                    el.appendChild(openBtn);
+                    return true;
+                }
             }
+            return false;
         }
-        if (!placed) {
-            openBtn.style.cssText = 'position:fixed;bottom:30px;right:20px;top:auto;width:55px;height:55px;';
-            document.body.appendChild(openBtn);
+
+        if (!tryPlaceTriggerBtn()) {
+            // Container não pronto ainda (ex: após F5 no mobile).
+            // Observa DOM até 5s aguardando o container aparecer.
+            const observer = new MutationObserver(() => {
+                if (tryPlaceTriggerBtn()) observer.disconnect();
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+
+            setTimeout(() => {
+                observer.disconnect();
+                // Fallback final: anexa sem sobrescrever width/height para manter o tamanho do CSS
+                if (!openBtn.isConnected) {
+                    openBtn.style.cssText = 'position:fixed;bottom:30px;right:20px;top:auto;z-index:100;';
+                    document.body.appendChild(openBtn);
+                }
+            }, 5000);
         }
 
 
