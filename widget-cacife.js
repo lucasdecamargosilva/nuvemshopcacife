@@ -458,6 +458,10 @@
         openBtn.id = 'q-open-ia';
         openBtn.setAttribute('aria-label', 'Abrir Provador Virtual');
         openBtn.innerHTML = stampImageHTML;
+        // Força tamanho via inline para evitar tema da loja reduzir o botão
+        const isMobile_ = window.matchMedia('(max-width: 767px)').matches;
+        const triggerSize_ = isMobile_ ? 72 : 65;
+        openBtn.style.cssText = `position:absolute;top:15px;right:15px;z-index:100;background:none;border:none;padding:0;cursor:pointer;width:${triggerSize_}px;height:${triggerSize_}px;min-width:${triggerSize_}px;min-height:${triggerSize_}px;max-width:${triggerSize_}px;max-height:${triggerSize_}px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.18));animation:q-shake 3s infinite;flex:none;box-sizing:border-box;`;
 
 
         const imgContainers = ['.js-product-slide', '.product-image-column', '.js-swiper-product', '[data-store^="product-image-"]', '.product__media-wrapper', '.product-gallery__media', '.product__media', '.product-image-main', '.product-media-container', '[data-media-id]', '.product__media-item', '.product-gallery', '.product-single__media', '.media-gallery'];
@@ -484,9 +488,8 @@
 
             setTimeout(() => {
                 observer.disconnect();
-                // Fallback final: anexa sem sobrescrever width/height para manter o tamanho do CSS
                 if (!openBtn.isConnected) {
-                    openBtn.style.cssText = 'position:fixed;bottom:30px;right:20px;top:auto;z-index:100;';
+                    openBtn.style.cssText = `position:fixed;bottom:30px;right:20px;top:auto;z-index:100;background:none;border:none;padding:0;cursor:pointer;width:${triggerSize_}px;height:${triggerSize_}px;min-width:${triggerSize_}px;min-height:${triggerSize_}px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.18));animation:q-shake 3s infinite;flex:none;box-sizing:border-box;`;
                     document.body.appendChild(openBtn);
                 }
             }, 5000);
