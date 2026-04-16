@@ -8,6 +8,7 @@
     const WEBHOOK_PROVA = 'https://n8n.segredosdodrop.com/webhook/gerador-oculos';
     const WEBHOOK_PIX = 'https://n8n.segredosdodrop.com/webhook/cacife-pix';
     const WEBHOOK_PIX_STATUS = 'https://n8n.segredosdodrop.com/webhook/cacife-pix-status';
+    const WEBHOOK_CHECK_LIMIT = 'https://n8n.segredosdodrop.com/webhook/cacife-check-limit';
     const SIZES_TOP = ['XXP', 'XP', 'P', 'M', 'G', 'XG', 'XXG', '3XG', '4XG', '5XG'];
     const SIZES_BOTTOM = ['36/XXP', '38/XP', '40/P', '42/M', '44/G', '46/XG', '48/XXG', '50/3XG', '52/4XG', '54/5XG'];
     const SIZES_BOTTOM_SW = ['XXP', 'XP', 'P', 'M', 'G', 'XG', 'XXG', '3XG', '4XG', '5XG'];
@@ -184,10 +185,11 @@
             justify-content: center;
             gap: 6px;
             width: 100%;
-            padding: 10px 14px;
+            padding: 12px 14px;
             background: transparent;
             color: #000;
             border: 1px solid #000;
+            border-radius: 50px;
             font-family: 'Work Sans', sans-serif;
             font-weight: 600;
             font-size: 10px;
@@ -534,6 +536,14 @@
         let userPhoto = null;
         let selectedProductImgUrl = '';
 
+        // Upgrade Nuvemshop CDN URLs to 1024px version
+        function upgradeImgUrl(url) {
+            if (url.includes('mitiendanube.com') || url.includes('nuvemshop.com')) {
+                return url.replace(/-\d+-\d+\.webp/, '-1024-1024.webp');
+            }
+            return url;
+        }
+
         function extractImages() {
             const containersSelectors = '.js-product-slide, .product-image-column, .js-swiper-product, [data-store^="product-image-"], .product__media-wrapper, .product-gallery__media, .product__media, .product-image-main, .product-media-container, [data-media-id], .product__media-item, .product-gallery, .product-single__media, .media-gallery, [data-component="product.gallery"], .swiper-slide:not(.swiper-slide-duplicate), .slider-wrapper';
             const possibleContainers = Array.from(document.querySelectorAll(containersSelectors));
@@ -569,52 +579,27 @@
 
                 let cleanSrc = src.split('?')[0].replace(/-\d+-\d+\.webp|_\d+x\d+/, '');
 
+                // Upgrade to 1024px version
+                src = upgradeImgUrl(src);
+
                 if (!uniqueImgs.some(u => u.split('?')[0].replace(/-\d+-\d+\.webp|_\d+x\d+/, '') === cleanSrc)) {
                     uniqueImgs.push(src);
                 }
             });
             if (uniqueImgs.length === 0) {
                 const og = document.querySelector('meta[property="og:image"]')?.content;
-                if (og) uniqueImgs.push(og);
+                if (og) uniqueImgs.push(upgradeImgUrl(og));
             }
             return uniqueImgs.slice(0, 2);
         }
 
         function populateImageSelector() {
             const imgs = extractImages();
-            const container = document.getElementById('q-product-images-container');
             const group = document.getElementById('q-photo-selector-group');
-            container.innerHTML = '';
 
-            if (imgs.length < 2) {
-                group.style.display = 'none';
-                selectedProductImgUrl = imgs[0] || '';
-                return;
-            }
-
-            group.style.display = 'flex';
-            group.style.flexDirection = 'column';
-            selectedProductImgUrl = imgs[0];
-
-            imgs.forEach((url, i) => {
-                const box = document.createElement('div');
-                box.style.cssText = `width:70px; height:90px; border: 2px solid ${i === 0 ? 'var(--q-primary)' : 'var(--q-gray)'}; border-radius:4px; overflow:hidden; cursor:pointer; opacity: ${i === 0 ? '1' : '0.5'}; transition: 0.3s;`;
-                const img = document.createElement('img');
-                img.src = url;
-                img.style.cssText = 'width:100%; height:100%; object-fit:cover;';
-                box.appendChild(img);
-
-                box.onclick = () => {
-                    selectedProductImgUrl = url;
-                    Array.from(container.children).forEach(child => {
-                        child.style.borderColor = 'var(--q-gray)';
-                        child.style.opacity = '0.5';
-                    });
-                    box.style.borderColor = 'var(--q-primary)';
-                    box.style.opacity = '1';
-                };
-                container.appendChild(box);
-            });
+            group.style.display = 'none';
+            selectedProductImgUrl = imgs[0] || '';
+            return;
         }
 
         function openModal() {
@@ -718,7 +703,7 @@
                     const c = document.createElement('canvas');
                     c.width = w; c.height = h;
                     c.getContext('2d').drawImage(img, 0, 0, w, h);
-                    c.toBlob(b => resolve(b), 'image/jpeg', 0.85);
+                    c.toBlob(b => resolve(b), 'image/jpeg', 0.95);
                 };
                 const url = URL.createObjectURL(fileOrBlob instanceof Blob ? fileOrBlob : new Blob([fileOrBlob]));
                 img.src = url;
@@ -750,7 +735,7 @@
                 const resp = await fetch(WEBHOOK_PIX, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: 'cliente@provoulevou.com.br' })
+                    body: JSON.stringify({ email: 'cliente@provoulevou.com.br', phone: '55' + phoneInput.value.replace(/\D/g, '') })
                 });
                 const pix = await resp.json();
                 if (!pix.payment_id || !pix.qr_code) throw new Error('PIX inválido');
@@ -772,7 +757,7 @@
                             document.getElementById('q-pix-status-msg').className = 'q-pix-status q-pix-approved';
                             setTimeout(() => {
                                 hidePixScreen();
-                                runGeneration(true);
+                                runGeneration();
                             }, 1200);
                         }
                     } catch (_) {}
@@ -800,11 +785,7 @@
         };
 
         // ── GERAÇÃO PRINCIPAL ──
-        async function runGeneration(paidExtra) {
-            const today = new Date().toISOString().slice(0, 10);
-            const limitKey = 'pl_gen_' + today;
-            const usedToday = parseInt(localStorage.getItem(limitKey) || '0', 10);
-
+        async function runGeneration() {
             const keyToUse = window.PROVOU_LEVOU_API_KEY;
             if (!keyToUse || keyToUse.includes("COLOQUE_A_CHAVE_AQUI")) {
                 alert("Erro: API Key não configurada neste script.");
@@ -819,8 +800,7 @@
 
             try {
                 const fd = new FormData();
-                const resizedPerson = await resizeImage(userPhoto, 512);
-                fd.append('person_image', resizedPerson, 'person.jpg');
+                fd.append('person_image', userPhoto, 'person.jpg');
                 fd.append('whatsapp', '55' + phoneInput.value.replace(/\D/g, ''));
                 fd.append('phone_raw', phoneInput.value);
                 fd.append('product_name', prodName);
@@ -841,8 +821,7 @@
                 if (prodImg) {
                     try {
                         const b = await fetch(prodImg).then(r => r.blob());
-                        const resizedProduct = await resizeImage(b, 512);
-                        fd.append('product_image', resizedProduct, 'product.jpg');
+                        fd.append('product_image', b, 'product.jpg');
                     } catch (_) { }
                 }
 
@@ -867,9 +846,6 @@
 
                 if (res.ok) {
                     const blob = await res.blob();
-                    if (!paidExtra) {
-                        localStorage.setItem(limitKey, (usedToday + 1).toString());
-                    }
                     document.getElementById('q-loading-box').style.display = 'none';
                     document.getElementById('q-final-view-img').src = URL.createObjectURL(blob);
                     document.querySelector('.q-card-ia').classList.add('is-result');
@@ -889,16 +865,27 @@
         genBtn.onclick = async () => {
             if (!userPhoto) return;
 
-            const today = new Date().toISOString().slice(0, 10);
-            const limitKey = 'pl_gen_' + today;
-            const usedToday = parseInt(localStorage.getItem(limitKey) || '0', 10);
+            const phone = '55' + phoneInput.value.replace(/\D/g, '');
+            genBtn.disabled = true;
 
-            if (usedToday >= 3) {
-                createPixAndPoll();
-                return;
+            try {
+                const resp = await fetch(WEBHOOK_CHECK_LIMIT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                const data = await resp.json();
+                if (data.limited) {
+                    genBtn.disabled = false;
+                    createPixAndPoll();
+                    return;
+                }
+            } catch (_) {
+                // se o check falhar, deixa gerar (evita bloquear por erro de rede)
             }
 
-            runGeneration(false);
+            genBtn.disabled = false;
+            runGeneration();
         };
     }
 
