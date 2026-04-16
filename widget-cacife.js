@@ -219,7 +219,7 @@
         ═══════════════════════════════════════════════ */
         .q-content-scroll {
             flex: 1;
-            padding: 24px 20px 40px;
+            padding: 24px 20px 24px;
             overflow-y: auto;
             text-align: center;
             display: flex;
@@ -228,6 +228,33 @@
         }
         .q-content-scroll::-webkit-scrollbar { width: 4px; }
         .q-content-scroll::-webkit-scrollbar-thumb { background: #e5e5e5; }
+
+        /* Mobile: conteúdo não ocupa a tela toda — card se ajusta ao conteúdo */
+        @media (max-width: 767px) {
+            .q-card-ia {
+                min-height: auto;
+                padding-top: env(safe-area-inset-top, 0px);
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+            }
+            #q-modal-ia {
+                display: none;
+                overflow-y: auto;
+                padding: 20px;
+                align-items: flex-start;
+                justify-content: center;
+            }
+            #q-modal-ia[style*="flex"] { display: flex !important; }
+            .q-card-ia {
+                width: 100%;
+                max-width: 420px;
+                border: 1px solid #000;
+                margin: auto;
+            }
+            .q-content-scroll {
+                flex: none;
+                padding: 28px 20px;
+            }
+        }
 
         /* ═══════════════════════════════════════════════
            HEADER
@@ -691,7 +718,7 @@
                             <span>Ao continuar, concordo com os <a href="http://provoulevou.com.br/termos.html" target="_blank">Termos e Condições</a></span>
                         </label>
 
-                        <button class="q-btn-black" id="q-btn-generate" disabled>Ver no meu corpo</button>
+                        <button class="q-btn-black" id="q-btn-generate" disabled>Provar óculos</button>
                     </div>
 
                     <div id="q-step-pix">
