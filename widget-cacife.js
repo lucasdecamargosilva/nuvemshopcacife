@@ -147,15 +147,14 @@
 
         @media (max-width: 767px) {
             .q-card-ia {
-                max-width: 92% !important;
-                width: 92% !important;
-                height: auto !important;
-                max-height: 90vh !important;
-                border: 1px solid var(--q-border) !important;
-                margin: auto !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-height: 100vh !important;
+                border: none !important;
             }
             #q-modal-ia {
-                padding: 20px !important;
+                padding: 0 !important;
             }
             .q-content-scroll {
                 padding: 20px 16px !important;
@@ -163,12 +162,15 @@
             .q-group {
                 width: 100% !important;
                 flex: none !important;
-                box-sizing: border-box !important;
             }
             .q-input {
                 width: 100% !important;
                 box-sizing: border-box !important;
                 display: block !important;
+            }
+            .q-group {
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
             .q-lead-form {
                 width: 100% !important;
