@@ -146,35 +146,48 @@
         }
 
         @media (max-width: 767px) {
-            .q-card-ia {
-                max-width: 100% !important;
-                width: 100% !important;
-                height: 100% !important;
-                max-height: 100vh !important;
-                border: none !important;
-            }
             #q-modal-ia {
                 padding: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+            }
+            .q-card-ia {
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100vh !important;
+                max-height: 100vh !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
             }
             .q-content-scroll {
+                width: 100vw !important;
+                max-width: 100vw !important;
                 padding: 20px 16px !important;
-            }
-            .q-group {
-                width: 100% !important;
-                flex: none !important;
-            }
-            .q-input {
-                width: 100% !important;
-                box-sizing: border-box !important;
-                display: block !important;
-            }
-            .q-group {
-                width: 100% !important;
                 box-sizing: border-box !important;
             }
             .q-lead-form {
-                width: 100% !important;
+                width: calc(100vw - 32px) !important;
+                max-width: calc(100vw - 32px) !important;
                 box-sizing: border-box !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+            .q-group {
+                width: calc(100vw - 32px) !important;
+                max-width: calc(100vw - 32px) !important;
+                flex: none !important;
+                box-sizing: border-box !important;
+                margin: 0 !important;
+            }
+            .q-input {
+                width: calc(100vw - 32px) !important;
+                max-width: calc(100vw - 32px) !important;
+                min-width: calc(100vw - 32px) !important;
+                box-sizing: border-box !important;
+                display: block !important;
+                margin: 0 !important;
             }
         }
 
@@ -640,41 +653,7 @@
         function openModal() {
             modal.style.display = 'flex';
             lockBodyScroll();
-            // Força recálculo da largura do input para neutralizar layouts quebrados
-            // (ex: vídeo no produto afetando o viewport/body do iOS Safari)
-            const fixInputWidth = () => {
-                const phone = document.getElementById('q-phone');
-                if (!phone) return;
-                const group = phone.closest('.q-group');
-                if (!group) return;
-                const available = group.getBoundingClientRect().width;
-                if (available > 0) {
-                    phone.style.width = available + 'px';
-                    phone.style.maxWidth = available + 'px';
-                    phone.style.boxSizing = 'border-box';
-                }
-            };
-            requestAnimationFrame(() => {
-                fixInputWidth();
-                setTimeout(fixInputWidth, 100);
-                setTimeout(fixInputWidth, 300);
-            });
         }
-
-        // Recalcula largura do input em resize/orientationchange
-        window.addEventListener('resize', () => {
-            const modalEl = document.getElementById('q-modal-ia');
-            if (!modalEl || modalEl.style.display !== 'flex') return;
-            const phone = document.getElementById('q-phone');
-            if (!phone) return;
-            const group = phone.closest('.q-group');
-            if (!group) return;
-            const available = group.getBoundingClientRect().width;
-            if (available > 0) {
-                phone.style.width = available + 'px';
-                phone.style.maxWidth = available + 'px';
-            }
-        });
 
 
         function closeModal() {
