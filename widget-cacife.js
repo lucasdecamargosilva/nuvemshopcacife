@@ -470,6 +470,18 @@
         const imgContainers = ['.js-product-slide', '.product-image-column', '.js-swiper-product', '[data-store^="product-image-"]', '.product__media-wrapper', '.product-gallery__media', '.product__media', '.product-image-main', '.product-media-container', '[data-media-id]', '.product__media-item', '.product-gallery', '.product-single__media', '.media-gallery'];
 
         function tryPlaceTriggerBtn() {
+            // 1ª prioridade: container que tenha <img> dentro (evita cair em slide de vídeo)
+            for (const sel of imgContainers) {
+                const els = document.querySelectorAll(sel);
+                for (const el of els) {
+                    if (el.querySelector('img')) {
+                        if (window.getComputedStyle(el).position === 'static') el.style.position = 'relative';
+                        el.appendChild(openBtn);
+                        return true;
+                    }
+                }
+            }
+            // 2ª prioridade: qualquer container correspondente
             for (const sel of imgContainers) {
                 const el = document.querySelector(sel);
                 if (el) {
@@ -628,6 +640,16 @@
         function openModal() {
             modal.style.display = 'flex';
             lockBodyScroll();
+            // Force layout recomputation to neutralize any layout interference
+            // (ex: videos causing viewport/body layout to be in an unexpected state)
+            requestAnimationFrame(() => {
+                const phone = document.getElementById('q-phone');
+                if (phone) {
+                    phone.style.width = '';
+                    void phone.offsetWidth;
+                    phone.style.width = '100%';
+                }
+            });
         }
 
 
