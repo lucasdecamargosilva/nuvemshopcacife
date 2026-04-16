@@ -189,7 +189,7 @@
             background: transparent;
             color: #000;
             border: 1px solid #000;
-            border-radius: 50px;
+            border-radius: 0;
             font-family: 'Work Sans', sans-serif;
             font-weight: 600;
             font-size: 10px;
