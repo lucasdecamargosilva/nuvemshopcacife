@@ -104,464 +104,531 @@
 
     const styles = `
         :root {
+            --q-primary: #000000;
             --q-bg: #ffffff;
-            --q-ink: #0a0a0a;
-            --q-ink-2: #2a2a2a;
-            --q-mute: #9a9a9a;
-            --q-rule: #0a0a0a;
-            --q-soft: #f5f4f1;
-            --q-warn: #b91c1c;
-            --q-primary: #0a0a0a;
-            --q-border: #0a0a0a;
-            --q-gray: #f5f4f1;
-            --q-text: #0a0a0a;
-            --q-text-light: #9a9a9a;
+            --q-border: #000000;
+            --q-gray: #f5f5f5;
+            --q-text: #000000;
+            --q-text-light: #666666;
         }
 
-        #q-modal-ia, #q-modal-ia * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        #q-modal-ia button { font-family: inherit; }
-
+        /* ═══════════════════════════════════════════════
+           BOTÃO TRIGGER (selo flutuante sobre a imagem)
+        ═══════════════════════════════════════════════ */
         @keyframes q-shake {
-            0%, 50%, 100% { transform: rotate(0); }
-            10%, 30% { transform: rotate(-8deg); }
-            20%, 40% { transform: rotate(8deg); }
+            0%, 50%, 100% { transform: rotate(0deg); }
+            10%, 30% { transform: rotate(-10deg); }
+            20%, 40% { transform: rotate(10deg); }
         }
         .q-btn-trigger-ia {
-            position: absolute; top: 15px; right: 15px; z-index: 100;
+            position: absolute;
+            top: 15px; right: 15px;
+            z-index: 100;
+            background: none; border: none; padding: 0;
+            cursor: pointer;
             width: 72px; height: 72px;
-            background: none; border: none; padding: 0; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            filter: drop-shadow(0 2px 8px rgba(0,0,0,.22));
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.18));
             animation: q-shake 3s infinite;
         }
-        .q-btn-trigger-ia:hover { filter: drop-shadow(0 4px 14px rgba(0,0,0,.32)); }
-        .q-btn-trigger-ia svg { width: 100%; height: 100%; }
-        @media (min-width: 768px) { .q-btn-trigger-ia { width: 65px; height: 65px; } }
-
-        .q-btn-inline-provador {
-            display: flex; align-items: center; justify-content: center;
-            gap: 8px; width: 100%; padding: 14px 16px;
-            background: transparent; color: #0a0a0a;
-            border: 1px solid #0a0a0a; border-radius: 0;
-            font-family: 'Inter', system-ui, sans-serif;
-            font-weight: 600; font-size: 11px;
-            letter-spacing: .18em; text-transform: uppercase;
-            cursor: pointer; transition: all .3s ease;
-            margin-bottom: 8px;
+        .q-btn-trigger-ia:hover { filter: drop-shadow(0 4px 12px rgba(0,0,0,0.28)); }
+        .q-btn-trigger-ia svg { width: 100%; height: 100%; overflow: visible; }
+        @media (min-width: 768px) {
+            .q-btn-trigger-ia { width: 65px; height: 65px; }
         }
-        .q-btn-inline-provador:hover { background: #0a0a0a; color: #fff; }
-        .q-btn-inline-provador svg { width: 15px; height: 15px; flex-shrink: 0; }
 
+        /* ═══════════════════════════════════════════════
+           BOTÃO INLINE (acima do botão de comprar)
+        ═══════════════════════════════════════════════ */
+        .q-btn-inline-provador {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            width: 100%;
+            padding: 12px 14px;
+            background: transparent;
+            color: #000;
+            border: 1px solid #000;
+            border-radius: 0;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 600; font-size: 10px;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+        .q-btn-inline-provador:hover { background: #000; color: #fff; }
+        .q-btn-inline-provador svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+        /* ═══════════════════════════════════════════════
+           MODAL OVERLAY
+        ═══════════════════════════════════════════════ */
         #q-modal-ia {
             display: none;
-            position: fixed; inset: 0; z-index: 999999;
-            background: rgba(250,248,245,.98);
-            font-family: 'Inter', system-ui, sans-serif;
-            color: var(--q-ink);
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            background: rgba(255,255,255,0.98);
+            font-family: 'Inter', sans-serif;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
+        #q-modal-ia * { box-sizing: border-box; }
 
+        /* ═══════════════════════════════════════════════
+           CARD (container principal) - mobile first
+        ═══════════════════════════════════════════════ */
         .q-card-ia {
+            width: 100%;
+            min-height: 100vh;
+            background: #fff;
+            color: #000;
+            display: flex;
+            flex-direction: column;
             position: relative;
-            width: 100%; height: 100vh;
-            background: var(--q-bg);
-            display: flex; flex-direction: column;
-            overflow: hidden;
         }
 
         @media (min-width: 768px) {
-            #q-modal-ia { align-items: center; justify-content: center; padding: 24px; }
-            #q-modal-ia[style*="flex"] { display: flex !important; }
+            #q-modal-ia { display: none; align-items: center; justify-content: center; }
             .q-card-ia {
-                width: 480px; max-width: 100%;
-                height: auto; max-height: 92vh;
-                border: 1px solid var(--q-rule);
+                width: 480px;
+                max-width: 90vw;
+                min-height: auto;
+                max-height: 94vh;
+                border: 1px solid #000;
+                overflow: hidden;
             }
         }
 
+        /* ═══════════════════════════════════════════════
+           CLOSE BUTTON
+        ═══════════════════════════════════════════════ */
         .q-close-ia {
-            position: absolute; top: 14px; right: 14px; z-index: 20;
-            width: 40px; height: 40px;
-            background: transparent; border: none; cursor: pointer;
-            color: var(--q-ink);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform .2s;
-            font-size: 28px; line-height: 1; font-weight: 300;
-            padding: 0;
+            position: absolute;
+            top: 16px; right: 16px;
+            background: none; border: none;
+            font-size: 28px; font-weight: 300;
+            color: #000;
+            cursor: pointer;
+            z-index: 10;
+            line-height: 1;
+            padding: 4px 8px;
         }
-        .q-close-ia:hover { transform: rotate(90deg); }
 
+        /* ═══════════════════════════════════════════════
+           CONTENT SCROLL
+        ═══════════════════════════════════════════════ */
         .q-content-scroll {
-            flex: 1 1 auto; min-height: 0;
-            overflow-y: auto; overflow-x: hidden;
-            padding: 40px 24px 24px;
-            -webkit-overflow-scrolling: touch;
+            flex: 1;
+            padding: 24px 20px 40px;
+            overflow-y: auto;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
-        .q-content-scroll::-webkit-scrollbar { width: 0; }
+        .q-content-scroll::-webkit-scrollbar { width: 4px; }
+        .q-content-scroll::-webkit-scrollbar-thumb { background: #e5e5e5; }
 
-        #q-header-provador { text-align: center; margin-bottom: 32px; }
-        .q-brand-rail {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            font-size: 9px; letter-spacing: .32em; text-transform: uppercase;
-            color: var(--q-mute); margin-bottom: 18px;
-            font-weight: 600;
-        }
-        .q-brand-dot { width: 4px; height: 4px; background: var(--q-ink); border-radius: 50%; }
-        #q-header-provador img.q-brand-logo {
-            height: 28px; width: auto; display: block; margin: 0 auto 18px;
-            filter: brightness(0);
+        /* ═══════════════════════════════════════════════
+           HEADER
+        ═══════════════════════════════════════════════ */
+        #q-header-provador {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
         }
         #q-header-provador h1 {
-            font-family: 'Inter', sans-serif;
-            font-size: clamp(28px, 8vw, 36px);
-            font-weight: 700;
-            line-height: .95;
-            letter-spacing: -.03em;
             margin: 0;
-            color: var(--q-ink);
-            text-transform: none;
-        }
-        #q-header-provador h1 em {
-            font-style: italic; font-weight: 400;
-            color: var(--q-ink-2);
-            font-family: 'Playfair Display', 'Georgia', serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        #q-step-upload { display: flex; flex-direction: column; gap: 24px; }
-
-        .q-step { display: flex; flex-direction: column; gap: 10px; }
-        .q-step-head {
-            display: flex; align-items: center; gap: 12px;
-            padding-bottom: 8px; border-bottom: 1px solid var(--q-ink);
-        }
-        .q-step-num {
-            font-family: 'Playfair Display', 'Georgia', serif;
-            font-size: 22px; font-weight: 500; font-style: italic;
-            color: var(--q-ink); line-height: 1;
-        }
-        .q-step-divider { flex: 1; height: 1px; background: var(--q-ink); opacity: .15; }
-        .q-step-label {
-            font-size: 10px; font-weight: 600;
-            letter-spacing: .3em; text-transform: uppercase;
-            color: var(--q-ink-2);
+        /* ═══════════════════════════════════════════════
+           STEP UPLOAD (tela principal)
+        ═══════════════════════════════════════════════ */
+        #q-step-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            align-items: stretch;
         }
 
+        /* Form rows */
+        .q-form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        .q-form-row label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #000;
+            text-align: center;
+        }
+
+        /* Input */
         .q-input {
-            display: block; width: 100%;
-            height: 68px;
-            padding: 0 20px; margin: 0;
+            display: block;
+            width: 100%;
+            height: 56px;
+            padding: 0 16px;
+            margin: 0;
             background: transparent;
-            border: 1px solid var(--q-ink);
+            border: 1px solid #000;
             border-radius: 0;
-            color: var(--q-ink);
+            font-size: 16px;
             font-family: 'Inter', sans-serif;
-            font-size: 22px; font-weight: 500;
-            letter-spacing: .02em;
+            color: #000;
             text-align: center;
             outline: none;
-            -webkit-appearance: none; appearance: none;
-            transition: border-color .2s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            box-sizing: border-box;
         }
-        .q-input::placeholder {
-            color: var(--q-mute);
-            font-weight: 400;
-            letter-spacing: .08em;
-        }
-        .q-input:focus { border-width: 2px; padding: 0 19px; }
+        .q-input:focus { border-width: 2px; padding: 0 15px; }
+        .q-input::placeholder { color: #999; }
 
+        /* Error message */
         .q-status-msg {
             display: none;
-            font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
-            color: var(--q-warn); font-weight: 600;
-            text-align: center; margin-top: 6px;
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: #ef4444;
+            font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+            margin-top: 4px;
         }
 
-        #q-upload-row { display: flex; justify-content: center; gap: 16px; }
+        /* Upload row */
+        #q-upload-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
         #q-trigger-upload {
-            position: relative;
-            width: 100%; max-width: 260px;
-            aspect-ratio: 3/4;
-            background: var(--q-soft);
-            border: 1px dashed var(--q-ink);
-            cursor: pointer;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 140px; height: 180px;
+            border: 1px solid #000;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             gap: 10px;
-            transition: background .25s, border-color .25s;
+            cursor: pointer;
+            transition: 0.3s;
         }
-        #q-trigger-upload:hover { background: #eeede8; }
-        .q-upload-icon { width: 44px; height: 44px; color: var(--q-ink); stroke-width: 1.2; }
-        .q-upload-caption {
-            font-size: 11px; font-weight: 700;
-            letter-spacing: .25em; text-transform: uppercase;
-            color: var(--q-ink);
-        }
-        .q-upload-hint {
-            font-size: 10px; color: var(--q-mute);
-            letter-spacing: .05em;
+        #q-trigger-upload:hover { background: #ebebeb; }
+        #q-trigger-upload i { font-size: 32px; color: #000; }
+        #q-trigger-upload span {
+            font-size: 10px; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase;
         }
         #q-pre-view {
-            display: none; position: relative;
-            width: 100%; max-width: 260px;
-            aspect-ratio: 3/4;
-            background: var(--q-soft);
-            border: 1px solid var(--q-ink);
+            display: none;
+            width: 140px; height: 180px;
+            border: 1px solid #000;
             overflow: hidden;
         }
-        #q-pre-view img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        #q-pre-view img { width: 100%; height: 100%; object-fit: cover; }
 
+        /* Terms */
         .q-terms-row {
-            display: flex; align-items: flex-start; gap: 10px;
-            font-size: 12px; line-height: 1.5;
-            color: var(--q-ink-2);
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            justify-content: center;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #64748b;
             cursor: pointer;
-            padding: 4px 0;
+            max-width: 340px;
+            margin: 0 auto;
+            text-align: left;
         }
-        .q-terms-row input {
-            flex-shrink: 0;
-            margin-top: 3px;
-            width: 16px; height: 16px;
-            accent-color: var(--q-ink);
-            cursor: pointer;
-        }
-        .q-terms-row a {
-            color: var(--q-ink); text-decoration: underline;
-            text-underline-offset: 2px;
-        }
+        .q-terms-row input { margin-top: 3px; cursor: pointer; accent-color: #000; flex-shrink: 0; }
+        .q-terms-row a { color: #8b5cf6; text-decoration: underline; }
 
-        .q-dock {
-            flex-shrink: 0;
-            padding: 18px 24px calc(18px + env(safe-area-inset-bottom, 0px));
-            background: var(--q-bg);
-            border-top: 1px solid var(--q-ink);
-            display: flex; flex-direction: column; gap: 14px;
-        }
-
-        .q-btn-black, .q-btn-primary {
-            position: relative;
-            width: 100%; height: 58px;
-            background: var(--q-ink); color: var(--q-bg);
-            border: 1px solid var(--q-ink); border-radius: 0;
+        /* Buttons */
+        .q-btn-black {
+            width: 100%;
+            height: 54px;
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            border-radius: 0;
             font-family: 'Inter', sans-serif;
-            font-size: 12px; font-weight: 700;
-            letter-spacing: .35em; text-transform: uppercase;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            gap: 14px;
-            transition: background .25s, color .25s;
-            overflow: hidden;
-            font-family: inherit;
+            transition: 0.3s;
+            box-sizing: border-box;
         }
-        .q-btn-black::before, .q-btn-primary::before {
-            content: "";
-            position: absolute; inset: 0;
-            background: var(--q-bg);
-            transform: translateY(101%);
-            transition: transform .35s cubic-bezier(.7,0,.3,1);
-            z-index: 0;
-        }
-        .q-btn-black:hover:not(:disabled)::before,
-        .q-btn-primary:hover:not(:disabled)::before { transform: translateY(0); }
-        .q-btn-black:hover:not(:disabled),
-        .q-btn-primary:hover:not(:disabled) { color: var(--q-ink); }
-        .q-btn-black:disabled, .q-btn-primary:disabled {
-            background: var(--q-soft);
-            color: var(--q-mute);
-            border-color: var(--q-soft);
+        .q-btn-black:hover:not(:disabled) { background: #fff; color: #000; }
+        .q-btn-black:disabled {
+            background: #f5f5f5;
+            color: #999;
+            border-color: #e0e0e0;
             cursor: not-allowed;
         }
-        .q-btn-label, .q-btn-arrow { position: relative; z-index: 1; }
-        .q-btn-arrow { width: 18px; height: 18px; transition: transform .25s; }
-        .q-btn-primary:hover:not(:disabled) .q-btn-arrow { transform: translateX(3px); }
-
-        .q-trust-row {
-            display: flex; align-items: center; justify-content: center;
-            gap: 14px;
-            font-size: 10px; letter-spacing: .15em; text-transform: uppercase;
-            color: var(--q-ink-2);
+        .q-btn-outline {
+            width: 100%;
+            height: 54px;
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+            border-radius: 0;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            box-sizing: border-box;
         }
-        .q-trust-item { display: flex; align-items: center; gap: 6px; font-weight: 600; }
-        .q-trust-item i { font-size: 12px; color: var(--q-ink); }
-        .q-trust-dot { width: 3px; height: 3px; background: var(--q-mute); border-radius: 50%; }
+        .q-btn-outline:hover { background: #000; color: #fff; }
 
-        .q-powered {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding-top: 12px; border-top: 1px solid rgba(10,10,10,.08);
-            text-decoration: none;
-        }
-        .q-powered span {
-            font-size: 9px; letter-spacing: .25em; text-transform: uppercase;
-            color: var(--q-mute); font-weight: 600;
-        }
-        .q-powered img { height: 18px; filter: brightness(0); opacity: .75; }
-
-        #q-step-pix, #q-loading-box, #q-step-result { display: none; }
-
+        /* ═══════════════════════════════════════════════
+           PIX SCREEN
+        ═══════════════════════════════════════════════ */
         #q-step-pix {
+            display: none;
             text-align: center;
-            flex-direction: column; align-items: center; gap: 16px;
+            padding: 20px 0;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
         }
-        .q-screen-title {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-size: 28px; font-style: italic;
-            margin: 0; color: var(--q-ink);
+        #q-step-pix h2 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin: 0;
         }
         .q-pix-subtitle {
-            font-size: 13px; line-height: 1.6;
-            color: var(--q-ink-2); margin: 0;
-            max-width: 300px;
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 0.5px;
+            margin: 0;
+            line-height: 1.5;
         }
-        .q-pix-subtitle strong { color: var(--q-ink); font-weight: 700; }
         .q-pix-qr {
-            width: 220px; height: 220px;
-            padding: 10px; border: 1px solid var(--q-ink);
-            background: var(--q-bg);
+            width: 200px; height: 200px;
+            border: 1px solid #000;
+            padding: 8px;
         }
         .q-pix-qr img { width: 100%; height: 100%; }
         .q-pix-copiacola {
-            display: flex; gap: 0;
-            width: 100%; max-width: 340px;
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            max-width: 340px;
         }
         .q-pix-copiacola input {
-            flex: 1; min-width: 0;
-            height: 46px; padding: 0 14px;
-            border: 1px solid var(--q-ink); border-right: none;
-            background: var(--q-soft);
-            font-family: 'Inter', monospace;
-            font-size: 11px; outline: none;
+            flex: 1;
+            height: 42px;
+            padding: 0 12px;
+            border: 1px solid #000;
+            background: #f5f5f5;
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            min-width: 0;
+            box-sizing: border-box;
         }
         .q-pix-copiacola button {
-            height: 46px; padding: 0 20px;
-            background: var(--q-ink); color: var(--q-bg);
-            border: 1px solid var(--q-ink); cursor: pointer;
-            font-size: 10px; font-weight: 700;
-            letter-spacing: .2em; text-transform: uppercase;
-            font-family: inherit;
+            height: 42px;
+            padding: 0 16px;
+            background: #000;
+            color: #fff;
+            border: 1px solid #000;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            white-space: nowrap;
         }
         .q-pix-status {
-            font-size: 11px; font-weight: 700;
-            letter-spacing: .3em; text-transform: uppercase;
-            padding: 8px 16px;
-            border: 1px solid currentColor;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #666;
         }
-        @keyframes q-pix-pulse { 0%,100% { opacity: .4 } 50% { opacity: 1 } }
-        .q-pix-waiting { animation: q-pix-pulse 1.6s ease-in-out infinite; color: #b45309; }
-        .q-pix-approved { color: #15803d; }
+        @keyframes q-pix-pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+        .q-pix-waiting { animation: q-pix-pulse 1.5s infinite ease-in-out; color: #f59e0b; }
+        .q-pix-approved { color: #22c55e; }
         .q-pix-cancel {
-            background: none; border: none; cursor: pointer;
-            font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
-            color: var(--q-mute); text-decoration: underline;
-            text-underline-offset: 3px;
-            font-family: inherit;
+            font-size: 11px;
+            color: #666;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-top: 6px;
         }
 
+        /* ═══════════════════════════════════════════════
+           LOADING
+        ═══════════════════════════════════════════════ */
+        @keyframes q-slide { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+        @keyframes q-pulse-text { 0%,100% { opacity: 0.4; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } }
         #q-loading-box {
-            flex-direction: column; align-items: center;
-            justify-content: center;
-            min-height: 320px;
-            gap: 18px;
-            padding: 40px 0;
+            display: none;
+            padding: 60px 0;
+            text-align: center;
         }
-        .q-loading-glyph { width: 80px; height: 32px; color: var(--q-ink); }
-        .q-loading-glyph svg { width: 100%; height: 100%; }
-        .q-loading-glyph { animation: q-pulse-text 1.8s ease-in-out infinite; }
-        .q-loading-label {
-            font-size: 12px; font-weight: 700;
-            letter-spacing: .35em; text-transform: uppercase;
-            color: var(--q-ink);
+        #q-loading-box > div:first-child {
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            animation: q-pulse-text 1.5s infinite ease-in-out;
         }
-        @keyframes q-pulse-text { 0%,100% { opacity: .5 } 50% { opacity: 1 } }
         .q-loading-bar {
-            width: 180px; height: 1px; background: rgba(0,0,0,.1);
-            position: relative; overflow: hidden;
+            height: 2px;
+            background: #f5f5f5;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
         }
-        @keyframes q-slide { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
         .q-loading-bar > div {
-            position: absolute; inset: 0;
-            width: 25%;
-            background: var(--q-ink);
-            animation: q-slide 1.6s linear infinite;
-        }
-        .q-loading-hint {
-            font-size: 10px; letter-spacing: .15em;
-            color: var(--q-mute);
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%; width: 30%;
+            background: #000;
+            animation: q-slide 1.5s infinite linear;
         }
 
+        /* ═══════════════════════════════════════════════
+           RESULT SCREEN
+        ═══════════════════════════════════════════════ */
         #q-step-result {
-            flex-direction: column; align-items: stretch; gap: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 24px;
+            align-items: stretch;
         }
         #q-result-img-col {
             width: 100%;
-            background: var(--q-soft);
-            border: 1px solid var(--q-ink);
+            border: 1px solid #000;
+            background: #f5f5f5;
             overflow: hidden;
         }
         #q-result-img-col img { width: 100%; height: auto; display: block; }
         #q-result-actions-col {
-            display: flex; flex-direction: column; gap: 12px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .q-res-title {
-            font-family: 'Playfair Display', Georgia, serif;
-            font-size: 26px; font-style: italic;
-            display: block;
-            color: var(--q-ink);
-        }
-        .q-res-note { display: none; }
-        .q-btn-outline {
-            width: 100%; height: 54px;
-            background: var(--q-bg); color: var(--q-ink);
-            border: 1px solid var(--q-ink); border-radius: 0;
-            font-size: 11px; font-weight: 700;
-            letter-spacing: .3em; text-transform: uppercase;
-            cursor: pointer; transition: all .25s;
-            font-family: inherit;
-        }
-        .q-btn-outline:hover { background: var(--q-ink); color: var(--q-bg); }
-        .q-res-mobile-only, .q-res-retry {
-            background: none; border: none; cursor: pointer;
-            font-size: 10px; font-weight: 600;
-            letter-spacing: .2em; text-transform: uppercase;
-            color: var(--q-mute);
-            text-decoration: underline; text-underline-offset: 4px;
-            font-family: inherit;
-            padding: 6px;
-            margin-top: 6px;
+        .q-res-title, .q-res-subtitle, .q-res-note { display: none; }
+        .q-res-mobile-only {
+            margin: 10px 0 0;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #666;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 4px;
         }
 
+        /* Result mode on desktop */
         @media (min-width: 768px) {
-            .q-card-ia.is-result { width: 820px !important; max-width: 90vw !important; height: 560px !important; max-height: 90vh !important; }
-            .q-card-ia.is-result #q-header-provador { display: none !important; }
-            .q-card-ia.is-result .q-content-scroll { padding: 0 !important; }
+            .q-card-ia.is-result {
+                width: 820px !important;
+                max-width: 90vw !important;
+                height: 560px !important;
+            }
+            .q-card-ia.is-result #q-header-provador,
+            .q-card-ia.is-result .q-powered-footer { display: none !important; }
+            .q-card-ia.is-result .q-content-scroll {
+                padding: 0 !important;
+                height: 100% !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0 !important;
+            }
             .q-card-ia.is-result #q-step-result {
+                display: flex !important;
                 flex-direction: row !important;
                 width: 100%; height: 100%;
                 align-items: stretch;
                 gap: 0 !important;
             }
             .q-card-ia.is-result #q-result-img-col {
-                width: 50%; height: 100%;
+                width: 45% !important; height: 100% !important;
                 margin: 0 !important;
-                border: none; border-right: 1px solid var(--q-ink);
-                position: relative;
+                border: none !important;
+                border-right: 1px solid #000 !important;
+                position: relative !important;
                 flex-shrink: 0;
             }
             .q-card-ia.is-result #q-result-img-col img {
-                position: absolute; top: 0; left: 0;
-                width: 100%; height: 100%;
-                object-fit: cover; object-position: top center;
+                position: absolute !important; top: 0; left: 0;
+                width: 100% !important; height: 100% !important;
+                object-fit: cover !important;
+                object-position: top center !important;
             }
             .q-card-ia.is-result #q-result-actions-col {
-                width: 50%; height: 100%;
-                padding: 48px;
-                justify-content: center;
+                width: 55% !important; height: 100% !important;
+                padding: 40px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                box-sizing: border-box;
+                overflow-y: auto;
             }
+            .q-card-ia.is-result .q-res-title {
+                display: block !important;
+                font-size: 20px; font-weight: 700;
+                letter-spacing: 2px; text-transform: uppercase;
+                color: #000; margin-bottom: 4px;
+            }
+            .q-card-ia.is-result .q-res-mobile-only { display: none !important; }
+            .q-card-ia.is-result .q-close-ia { top: 16px; right: 16px; z-index: 10; }
         }
 
-        .q-card-ia.is-loading .q-dock,
-        .q-card-ia.is-pix .q-dock,
-        .q-card-ia.is-result .q-dock { display: none !important; }
+        /* ═══════════════════════════════════════════════
+           POWERED FOOTER
+        ═══════════════════════════════════════════════ */
+        .q-powered-footer {
+            background: #fff;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-shrink: 0;
+            border-top: 1px solid #f5f5f5;
+            text-decoration: none;
+        }
+        .q-powered-footer span {
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #666;
+        }
+        .q-quantic-logo {
+            height: 22px;
+            filter: brightness(0);
+        }
     `;
 
 
@@ -576,128 +643,80 @@
     const html = `
         <div id="q-modal-ia">
             <div class="q-card-ia">
-                <button type="button" class="q-close-ia" id="q-close-btn" aria-label="Fechar">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="width:22px;height:22px;">
-                        <path d="M6 6l12 12M18 6l-12 12"/>
-                    </svg>
-                </button>
-
+                <button type="button" class="q-close-ia" id="q-close-btn">&times;</button>
                 <div class="q-content-scroll">
                     <div id="q-header-provador">
-                        <div class="q-brand-rail">
-                            <span class="q-brand-dot"></span>
-                            <span>Provador Virtual</span>
-                            <span class="q-brand-dot"></span>
-                        </div>
+                        <h1>Provador Virtual</h1>
                         <img
                             src="https://acdn-us.mitiendanube.com/stores/001/081/093/themes/common/logo-8096010581462353213-1770394796-b4592a045554e35cc8410459638c72e31770394796-480-0.webp"
                             alt="CACIFE"
-                            class="q-brand-logo"
+                            style="height:30px;width:auto;filter:brightness(0);"
                         />
-                        <h1>Experimente<br><em>no seu rosto.</em></h1>
                     </div>
-
                     <div id="q-step-upload">
-                        <section class="q-step">
-                            <div class="q-step-head">
-                                <span class="q-step-num">01</span>
-                                <span class="q-step-divider"></span>
-                                <span class="q-step-label">Celular</span>
-                            </div>
-                            <input type="tel" id="q-phone" class="q-input" placeholder="(11) 99999-9999" maxlength="15" autocomplete="tel">
+                        <div class="q-form-row">
+                            <label>Seu Celular</label>
+                            <input type="tel" id="q-phone" class="q-input" placeholder="(11) 99999-9999" maxlength="15">
                             <div id="q-phone-error" class="q-status-msg">Insira um número válido</div>
-                        </section>
-
-                        <div id="q-photo-selector-group" style="display:none;">
-                            <div id="q-product-images-container" style="display:flex;gap:15px;justify-content:center;"></div>
                         </div>
 
-                        <section class="q-step">
-                            <div class="q-step-head">
-                                <span class="q-step-num">02</span>
-                                <span class="q-step-divider"></span>
-                                <span class="q-step-label">Sua foto</span>
+                        <div class="q-form-row" id="q-photo-selector-group" style="display:none;">
+                            <label>Selecione a foto da peça:</label>
+                            <div id="q-product-images-container" style="display:flex; gap:15px; justify-content:center;"></div>
+                        </div>
+
+                        <div id="q-upload-row">
+                            <div id="q-trigger-upload">
+                                <i class="ph ph-camera-plus"></i>
+                                <span>Enviar Foto</span>
+                                <input type="file" id="q-real-input" accept="image/*" style="display:none">
                             </div>
-                            <div id="q-upload-row">
-                                <label id="q-trigger-upload" for="q-real-input">
-                                    <svg class="q-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="3" y="6" width="18" height="14" rx="1"/>
-                                        <path d="M8 6l2-3h4l2 3"/>
-                                        <circle cx="12" cy="13" r="3.5"/>
-                                    </svg>
-                                    <span class="q-upload-caption">Enviar foto</span>
-                                    <span class="q-upload-hint">rosto bem iluminado</span>
-                                    <input type="file" id="q-real-input" accept="image/*" style="display:none">
-                                </label>
-                                <div id="q-pre-view">
-                                    <img id="q-pre-img" alt="Sua foto">
-                                </div>
+                            <div id="q-pre-view">
+                                <img id="q-pre-img">
                             </div>
-                        </section>
+                        </div>
 
                         <label class="q-terms-row">
                             <input type="checkbox" id="q-accept-terms">
-                            <span>Concordo com os <a href="http://provoulevou.com.br/termos.html" target="_blank" rel="noopener">Termos e Condições</a></span>
+                            <span>Ao continuar, concordo com os <a href="http://provoulevou.com.br/termos.html" target="_blank">Termos e Condições</a></span>
                         </label>
+
+                        <button class="q-btn-black" id="q-btn-generate" disabled>Ver no meu corpo</button>
                     </div>
 
                     <div id="q-step-pix">
-                        <h2 class="q-screen-title">Prova Extra</h2>
-                        <p class="q-pix-subtitle">Você atingiu o limite de 3 provas grátis.<br>Pague <strong>R$ 1,00</strong> via PIX para gerar mais uma:</p>
+                        <h2>Prova Extra</h2>
+                        <p class="q-pix-subtitle">Você atingiu o limite de 3 provas grátis.<br>Pague R$1 via PIX para gerar mais uma:</p>
                         <div class="q-pix-qr"><img id="q-pix-qr-img" alt="QR Code PIX"></div>
                         <div class="q-pix-copiacola">
                             <input type="text" id="q-pix-code" readonly placeholder="Código PIX...">
                             <button id="q-pix-copy-btn">Copiar</button>
                         </div>
                         <div id="q-pix-status-msg" class="q-pix-status q-pix-waiting">Aguardando pagamento...</div>
-                        <button type="button" class="q-pix-cancel" id="q-pix-cancel">Cancelar</button>
+                        <p class="q-pix-cancel" id="q-pix-cancel">Cancelar</p>
                     </div>
 
                     <div id="q-loading-box">
-                        <div class="q-loading-glyph">
-                            <svg viewBox="0 0 60 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <circle cx="14" cy="12" r="9"/>
-                                <circle cx="46" cy="12" r="9"/>
-                                <path d="M23 12h14"/>
-                            </svg>
-                        </div>
-                        <div class="q-loading-label">Gerando prova virtual</div>
+                        <div>Gerando Prova Virtual...</div>
                         <div class="q-loading-bar"><div></div></div>
-                        <div class="q-loading-hint">Pode levar alguns segundos...</div>
                     </div>
 
                     <div id="q-step-result">
                         <div id="q-result-img-col">
-                            <img id="q-final-view-img" alt="Prova virtual">
+                            <img id="q-final-view-img">
                         </div>
                         <div id="q-result-actions-col">
-                            <span class="q-res-title">Ficou incrível!</span>
+                            <span class="q-res-title">Provador Virtual</span>
                             <div class="q-res-note"></div>
-                            <button type="button" class="q-btn-outline" id="q-btn-back">Voltar ao produto</button>
-                            <button type="button" class="q-res-mobile-only" id="q-retry-btn">Tentar com outra foto</button>
+                            <button class="q-btn-outline" id="q-btn-back">Voltar ao Produto</button>
+                            <p class="q-res-mobile-only" id="q-retry-btn">Tentar outra foto</p>
                         </div>
                     </div>
                 </div>
-
-                <footer class="q-dock" id="q-dock">
-                    <button class="q-btn-black" id="q-btn-generate" disabled>
-                        <span class="q-btn-label">Provar óculos</span>
-                        <svg class="q-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                            <path d="M5 12h14M13 6l6 6-6 6"/>
-                        </svg>
-                    </button>
-                    <div class="q-trust-row">
-                        <div class="q-trust-item"><i class="ph ph-lightning"></i><span>3 segundos</span></div>
-                        <div class="q-trust-dot"></div>
-                        <div class="q-trust-item"><i class="ph ph-shield-check"></i><span>Seguro</span></div>
-                        <div class="q-trust-dot"></div>
-                        <div class="q-trust-item"><i class="ph ph-sparkle"></i><span>IA</span></div>
-                    </div>
-                    <a href="https://provoulevou.com.br" target="_blank" rel="noopener" class="q-powered">
-                        <span>Powered by</span>
-                        <img src="https://provoulevou.com.br/assets/provoulevou-logo.png" alt="ProvouLevou">
-                    </a>
-                </footer>
+                <a href="https://provoulevou.com.br" target="_blank" class="q-powered-footer">
+                    <span>Powered by</span>
+                    <img src="https://provoulevou.com.br/assets/provoulevou-logo.png" class="q-quantic-logo">
+                </a>
             </div>
         </div>
     `;
@@ -714,7 +733,7 @@
         }
 
         const fontLink = document.createElement('link');
-        fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;1,400;1,500&display=swap';
+        fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
         fontLink.rel = 'stylesheet';
         document.head.appendChild(fontLink);
 
@@ -955,12 +974,10 @@
 
         retryBtn.onclick = () => {
             document.getElementById('q-step-result').style.display = 'none';
-            document.getElementById('q-step-upload').style.display = 'flex';
+            document.getElementById('q-step-upload').style.display = 'block';
             document.querySelector('.q-card-ia').classList.remove('is-result');
             userPhoto = null;
             document.getElementById('q-pre-view').style.display = 'none';
-            const triggerUp = document.getElementById('q-trigger-upload');
-            if (triggerUp) triggerUp.style.display = 'flex';
             checkFields();
         };
 
@@ -1000,7 +1017,6 @@
                 rd.onload = ev => {
                     document.getElementById('q-pre-img').src = ev.target.result;
                     document.getElementById('q-pre-view').style.display = 'block';
-                    document.getElementById('q-trigger-upload').style.display = 'none';
                     checkFields();
                 };
                 rd.readAsDataURL(userPhoto);
@@ -1035,8 +1051,7 @@
 
         function showPixScreen() {
             uploadStep.style.display = 'none';
-            document.getElementById('q-step-pix').style.display = 'flex';
-            document.querySelector('.q-card-ia').classList.add('is-pix');
+            document.getElementById('q-step-pix').style.display = 'block';
             document.getElementById('q-pix-status-msg').textContent = 'Aguardando pagamento...';
             document.getElementById('q-pix-status-msg').className = 'q-pix-status q-pix-waiting';
         }
@@ -1044,7 +1059,6 @@
         function hidePixScreen() {
             stopPixPolling();
             document.getElementById('q-step-pix').style.display = 'none';
-            document.querySelector('.q-card-ia').classList.remove('is-pix');
         }
 
         async function createPixAndPoll() {
@@ -1099,7 +1113,7 @@
         // Botão cancelar PIX
         document.getElementById('q-pix-cancel').onclick = () => {
             hidePixScreen();
-            uploadStep.style.display = 'flex';
+            uploadStep.style.display = 'block';
         };
 
         // ── GERAÇÃO PRINCIPAL ──
@@ -1114,8 +1128,7 @@
             const prodName = document.querySelector('h1.product__title,.product-single__title,h1')?.innerText || document.title;
 
             uploadStep.style.display = 'none';
-            document.getElementById('q-loading-box').style.display = 'flex';
-            document.querySelector('.q-card-ia').classList.add('is-loading');
+            document.getElementById('q-loading-box').style.display = 'block';
 
             try {
                 const fd = new FormData();
@@ -1153,8 +1166,7 @@
                     const data = await res.json();
                     if (data.error) {
                         document.getElementById('q-loading-box').style.display = 'none';
-                        document.querySelector('.q-card-ia').classList.remove('is-loading');
-                        document.getElementById('q-step-upload').style.display = 'flex';
+                        document.getElementById('q-step-upload').style.display = 'block';
                         if (data.error === "Chave invalida, vencida ou inativa." || data.error.includes("vencida ou inativa")) {
                             alert("App desativado nesta loja");
                         } else {
@@ -1167,20 +1179,17 @@
                 if (res.ok) {
                     const blob = await res.blob();
                     document.getElementById('q-loading-box').style.display = 'none';
-                    document.querySelector('.q-card-ia').classList.remove('is-loading');
                     document.getElementById('q-final-view-img').src = URL.createObjectURL(blob);
                     document.querySelector('.q-card-ia').classList.add('is-result');
                     document.getElementById('q-step-result').style.display = 'flex';
                 } else if (res.status === 401 || res.status === 403) {
                     document.getElementById('q-loading-box').style.display = 'none';
-                    document.getElementById('q-step-upload').style.display = 'flex';
-                document.querySelector('.q-card-ia').classList.remove('is-loading', 'is-pix');
+                    document.getElementById('q-step-upload').style.display = 'block';
                     alert("App desativado nesta loja");
                 } else { throw new Error(); }
             } catch (e) {
                 document.getElementById('q-loading-box').style.display = 'none';
-                document.getElementById('q-step-upload').style.display = 'flex';
-                document.querySelector('.q-card-ia').classList.remove('is-loading', 'is-pix');
+                document.getElementById('q-step-upload').style.display = 'block';
                 alert('Ocorreu um erro ao processar sua imagem (ou chave/servidor indisponíveis). Tente novamente.');
             }
         }
