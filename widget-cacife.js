@@ -168,26 +168,32 @@
                 box-sizing: border-box !important;
             }
             .q-lead-form {
-                width: calc(100vw - 32px) !important;
+                width: 320px !important;
                 max-width: calc(100vw - 32px) !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
                 box-sizing: border-box !important;
-                margin-left: 0 !important;
-                margin-right: 0 !important;
             }
             .q-group {
-                width: calc(100vw - 32px) !important;
-                max-width: calc(100vw - 32px) !important;
+                width: 100% !important;
+                max-width: 320px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
                 flex: none !important;
                 box-sizing: border-box !important;
-                margin: 0 !important;
+                text-align: center !important;
+            }
+            .q-group label {
+                text-align: center !important;
             }
             .q-input {
-                width: calc(100vw - 32px) !important;
-                max-width: calc(100vw - 32px) !important;
-                min-width: calc(100vw - 32px) !important;
+                width: 100% !important;
+                max-width: 320px !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
                 box-sizing: border-box !important;
                 display: block !important;
-                margin: 0 !important;
+                text-align: center !important;
             }
         }
 
