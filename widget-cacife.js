@@ -222,7 +222,7 @@
         .q-group { width: 100%; flex: 1; }
         .q-group label { display: block; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; color: var(--q-text); margin-bottom: 8px; text-transform: uppercase; }
         .q-input { width: 100%; min-width: 0; max-width: 100%; padding: 22px 18px; border: 1px solid var(--q-border); font-size: 16px; font-family: 'Inter', sans-serif; background: transparent; color: var(--q-text); outline: none; box-sizing: border-box; -webkit-appearance: none; -moz-appearance: none; appearance: none; border-radius: 0; }
-        .q-input:focus { border-width: 2px; padding: 14px; }
+        .q-input:focus { border-width: 2px; padding: 21px 17px; }
         .q-input-hint { font-size: 9px; color: var(--q-text-light); letter-spacing: 0.5px; margin-top: 6px; }
         .q-btn-black { background: var(--q-primary); color: var(--q-bg); border: 1px solid var(--q-primary); width: 100%; padding: 18px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 20px; transition: 0.3s; }
         .q-btn-black:disabled { background: var(--q-gray); color: #999; border-color: var(--q-gray); cursor: not-allowed; }
@@ -458,10 +458,6 @@
         openBtn.id = 'q-open-ia';
         openBtn.setAttribute('aria-label', 'Abrir Provador Virtual');
         openBtn.innerHTML = stampImageHTML;
-        // Força tamanho via inline para evitar tema da loja reduzir o botão
-        const isMobile_ = window.matchMedia('(max-width: 767px)').matches;
-        const triggerSize_ = isMobile_ ? 72 : 65;
-        openBtn.style.cssText = `position:absolute;top:15px;right:15px;z-index:100;background:none;border:none;padding:0;cursor:pointer;width:${triggerSize_}px;height:${triggerSize_}px;min-width:${triggerSize_}px;min-height:${triggerSize_}px;max-width:${triggerSize_}px;max-height:${triggerSize_}px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.18));animation:q-shake 3s infinite;flex:none;box-sizing:border-box;`;
 
 
         const imgContainers = ['.js-product-slide', '.product-image-column', '.js-swiper-product', '[data-store^="product-image-"]', '.product__media-wrapper', '.product-gallery__media', '.product__media', '.product-image-main', '.product-media-container', '[data-media-id]', '.product__media-item', '.product-gallery', '.product-single__media', '.media-gallery'];
@@ -489,7 +485,7 @@
             setTimeout(() => {
                 observer.disconnect();
                 if (!openBtn.isConnected) {
-                    openBtn.style.cssText = `position:fixed;bottom:30px;right:20px;top:auto;z-index:100;background:none;border:none;padding:0;cursor:pointer;width:${triggerSize_}px;height:${triggerSize_}px;min-width:${triggerSize_}px;min-height:${triggerSize_}px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.18));animation:q-shake 3s infinite;flex:none;box-sizing:border-box;`;
+                    openBtn.style.cssText = 'position:fixed;bottom:30px;right:20px;top:auto;z-index:100;';
                     document.body.appendChild(openBtn);
                 }
             }, 5000);
