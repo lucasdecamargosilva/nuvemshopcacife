@@ -164,8 +164,15 @@
                 flex: none !important;
             }
             .q-input {
-                width: -webkit-fill-available !important;
-                width: -moz-available !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                display: block !important;
+            }
+            .q-group {
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .q-lead-form {
                 width: 100% !important;
                 box-sizing: border-box !important;
             }
