@@ -467,6 +467,7 @@
             width: 200px; height: 200px;
             border: 1px solid #000;
             padding: 8px;
+            margin: 0 auto;
         }
         .q-pix-qr img { width: 100%; height: 100%; }
         .q-pix-copiacola {
