@@ -444,9 +444,9 @@
         #q-step-pix {
             display: none;
             text-align: center;
-            padding: 20px 0;
+            padding: 28px 0;
             flex-direction: column;
-            gap: 16px;
+            gap: 24px;
             align-items: center;
         }
         #q-step-pix h2 {
@@ -454,14 +454,14 @@
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin: 0;
+            margin: 0 0 4px 0;
         }
         .q-pix-subtitle {
             font-size: 12px;
             color: #666;
             letter-spacing: 0.5px;
             margin: 0;
-            line-height: 1.5;
+            line-height: 1.7;
         }
         .q-pix-qr {
             width: 200px; height: 200px;
@@ -475,6 +475,7 @@
             gap: 8px;
             width: 100%;
             max-width: 340px;
+            margin: 0 auto;
         }
         .q-pix-copiacola input {
             flex: 1;
