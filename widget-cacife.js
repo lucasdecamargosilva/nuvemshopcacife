@@ -482,12 +482,9 @@
                 width: 56% !important; padding: 28px 24px !important;
                 display: flex !important; flex-direction: column !important;
                 justify-content: flex-start; gap: 10px;
+                overflow-y: auto;
             }
-            .q-card-ia.is-result #q-related-products {
-                flex-basis: 100%;
-                padding: 16px 24px 24px;
-                border-top: 1px solid var(--c-line);
-            }
+            .q-card-ia.is-result #q-related-products { padding: 0; margin-top: 4px; }
             .q-card-ia.is-result .q-res-mobile-only { display: flex !important; }
         }
 
@@ -622,10 +619,10 @@
                             <button class="q-btn-black q-res-mobile-only" id="q-retry-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;">
                                 <i class="ph ph-camera"></i> Tentar outra foto
                             </button>
-                        </div>
-                        <div id="q-related-products" style="display:none;">
-                            <h4>Veja tamb&eacute;m</h4>
-                            <div class="q-related-grid" id="q-related-grid"></div>
+                            <div id="q-related-products" style="display:none;">
+                                <h4>Veja tamb&eacute;m</h4>
+                                <div class="q-related-grid" id="q-related-grid"></div>
+                            </div>
                         </div>
                     </div>
 
