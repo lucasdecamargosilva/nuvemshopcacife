@@ -709,13 +709,8 @@
             color: #000;
             overflow: hidden;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
-        }
-        .q-related-card-price {
-            font-size: 11px;
-            font-weight: 700;
-            color: #000;
         }
 
         #q-step-error {
@@ -825,10 +820,10 @@
                             <div class="q-res-note"></div>
                             <button class="q-btn-outline" id="q-btn-back">Voltar ao Produto</button>
                             <p class="q-res-mobile-only" id="q-retry-btn">Tentar outra foto</p>
-                        </div>
-                        <div id="q-related-products" style="display:none;">
-                            <h4>Veja tamb&eacute;m</h4>
-                            <div class="q-related-grid" id="q-related-grid"></div>
+                            <div id="q-related-products" style="display:none;">
+                                <h4>Veja tamb&eacute;m</h4>
+                                <div class="q-related-grid" id="q-related-grid"></div>
+                            </div>
                         </div>
                     <div id="q-step-error">
                         <h2>Provador fora do ar</h2>
@@ -1156,12 +1151,8 @@
                 var nameEl = document.createElement('span');
                 nameEl.className = 'q-related-card-name';
                 nameEl.textContent = p.name;
-                var priceEl = document.createElement('span');
-                priceEl.className = 'q-related-card-price';
-                priceEl.textContent = p.price;
                 a.appendChild(img);
                 a.appendChild(nameEl);
-                a.appendChild(priceEl);
                 grid.appendChild(a);
             });
             section.style.display = 'block';
