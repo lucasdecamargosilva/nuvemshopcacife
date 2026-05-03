@@ -637,24 +637,18 @@
             return;
         }
 
+        // Fontes (async, não bloqueia render)
         const fontLink = document.createElement('link');
         fontLink.href = 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap';
         fontLink.rel = 'stylesheet';
         document.head.appendChild(fontLink);
 
-
-        if (!window.phosphorIconsLoaded) {
-            const ph = document.createElement('script');
-            ph.src = 'https://unpkg.com/@phosphor-icons/web';
-            document.head.appendChild(ph);
-            window.phosphorIconsLoaded = true;
-        }
-
+        // Phosphor Icons — carregado lazily na primeira abertura do modal
+        // (não carrega na init para não impactar o tempo de carregamento da página)
 
         const styleTag = document.createElement('style');
         styleTag.textContent = styles;
         document.head.appendChild(styleTag);
-
 
         const modalContainer = document.createElement('div');
         modalContainer.innerHTML = html;
@@ -845,6 +839,13 @@
         }
 
         function openModal() {
+            // Lazy-load Phosphor Icons na primeira abertura
+            if (!window.phosphorIconsLoaded) {
+                var ph = document.createElement('script');
+                ph.src = 'https://unpkg.com/@phosphor-icons/web';
+                document.head.appendChild(ph);
+                window.phosphorIconsLoaded = true;
+            }
             modal.style.display = 'flex';
             lockBodyScroll();
         }
