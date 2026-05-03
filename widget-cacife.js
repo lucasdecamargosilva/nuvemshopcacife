@@ -841,7 +841,7 @@
                         <h2 class="q-step-title">Agora, envie sua foto</h2>
                         <div class="q-tip-box">
                             <i class="ph ph-lightbulb"></i>
-                            <span>Use uma foto n&#237;tida, de frente, com boa ilumina&#231;&#227;o e sem acess&#243;rios.</span>
+                            <span>Use uma foto n&#237;tida, de frente, com boa ilumina&#231;&#227;o.</span>
                         </div>
                         <div class="q-face-frame" id="q-face-frame">
                             <div class="q-face-corner q-face-corner-tl"></div>
