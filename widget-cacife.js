@@ -324,9 +324,9 @@
         .q-input:focus { border-width: 2px; padding: 0 15px; }
         @media (max-width: 767px) {
             .q-input {
-                height: 72px !important;
-                padding: 0 20px !important;
-                font-size: 22px !important;
+                height: 52px !important;
+                padding: 0 16px !important;
+                font-size: 16px !important;
                 font-weight: 500 !important;
                 letter-spacing: 0.02em !important;
             }
@@ -802,6 +802,7 @@
             background: #f5f5f5; border-left: 3px solid #000;
             padding: 12px 14px; margin-bottom: 20px;
             font-size: 12px; color: #444; line-height: 1.5;
+            border-radius: 8px;
         }
         .q-tip-box i { font-size: 18px; flex-shrink: 0; color: #000; margin-top: 1px; }
 
