@@ -365,7 +365,15 @@
         /* ── Loading ── */
         @keyframes q-slide { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
         @keyframes q-pulse-text { 0%,100%{opacity:0.4;transform:scale(0.99)} 50%{opacity:1;transform:scale(1)} }
-        #q-loading-box { display: none; padding: 60px 28px; text-align: center; }
+        #q-loading-box {
+            display: none; padding: 28px;
+            text-align: center;
+            flex: 1;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+        }
         #q-loading-box > div:first-child {
             font-family: var(--font-display); font-size: 18px; letter-spacing: 4px;
             text-transform: uppercase; margin-bottom: 24px;
@@ -1090,7 +1098,7 @@
             const prodName = document.querySelector('h1.product__title,.product-single__title,h1')?.innerText || document.title;
 
             uploadStep.style.display = 'none';
-            document.getElementById('q-loading-box').style.display = 'block';
+            document.getElementById('q-loading-box').style.display = 'flex';
 
             try {
                 const fd = new FormData();
