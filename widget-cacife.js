@@ -797,14 +797,15 @@
         }
         .q-upload-btn:hover { background: #000; color: #fff; }
         .q-upload-btn i { font-size: 18px; }
-        .q-tip {
-            font-size: 11px; color: #999; text-align: center;
-            margin: 12px 0 0; line-height: 1.5;
+        .q-tip-box {
+            display: flex; align-items: flex-start; gap: 10px;
+            background: #f5f5f5; border-left: 3px solid #000;
+            padding: 12px 14px; margin-bottom: 20px;
+            font-size: 12px; color: #444; line-height: 1.5;
         }
+        .q-tip-box i { font-size: 18px; flex-shrink: 0; color: #000; margin-top: 1px; }
 
-        /* ── Step phone ── */
-        #q-step-phone { display: flex; flex-direction: column; gap: 24px; }
-        #q-step-photo { display: none; flex-direction: column; gap: 0; align-items: stretch; }
+        #q-step-photo { display: flex; flex-direction: column; gap: 0; align-items: stretch; }
     `;
 
 
@@ -822,9 +823,9 @@
                 <button type="button" class="q-close-ia" id="q-close-btn">&times;</button>
                 <div class="q-content-scroll">
 
-                    <!-- ETAPA 1: WhatsApp -->
-                    <div id="q-step-phone">
-                        <div id="q-header-provador" style="margin-bottom:8px;">
+                    <!-- ETAPA ÚNICA: WhatsApp + Foto -->
+                    <div id="q-step-photo">
+                        <div id="q-header-provador" style="margin-bottom:16px;">
                             <h1 style="margin:0 0 10px 0;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Provador Virtual</h1>
                             <img
                                 src="https://acdn-us.mitiendanube.com/stores/001/081/093/themes/common/logo-8096010581462353213-1770394796-b4592a045554e35cc8410459638c72e31770394796-480-0.webp"
@@ -832,32 +833,16 @@
                                 style="height:42px;width:auto;filter:brightness(0);"
                             />
                         </div>
-                        <div class="q-progress">
-                            <div class="q-progress-dot q-active"></div>
-                            <div class="q-progress-line"></div>
-                            <div class="q-progress-dot"></div>
-                            <div class="q-progress-line"></div>
-                            <div class="q-progress-dot"></div>
-                        </div>
-                        <div class="q-form-row">
+                        <div class="q-form-row" style="margin-bottom:20px;">
                             <label>Seu WhatsApp</label>
                             <input type="tel" id="q-phone" class="q-input" placeholder="(11) 99999-9999" maxlength="15">
                             <div id="q-phone-error" class="q-status-msg">Insira um n&#250;mero v&#225;lido</div>
                         </div>
-                        <button class="q-btn-black" id="q-btn-next" disabled>Pr&#243;ximo</button>
-                    </div>
-
-                    <!-- ETAPA 2: Foto -->
-                    <div id="q-step-photo">
-                        <div class="q-progress" style="margin-bottom:24px;">
-                            <div class="q-progress-dot q-done"></div>
-                            <div class="q-progress-line q-active"></div>
-                            <div class="q-progress-dot q-active"></div>
-                            <div class="q-progress-line"></div>
-                            <div class="q-progress-dot"></div>
-                        </div>
                         <h2 class="q-step-title">Agora, envie sua foto</h2>
-                        <p class="q-step-subtitle">Para gerar o resultado com os &#243;culos</p>
+                        <div class="q-tip-box">
+                            <i class="ph ph-lightbulb"></i>
+                            <span>Use uma foto n&#237;tida, de frente, com boa ilumina&#231;&#227;o e sem acess&#243;rios.</span>
+                        </div>
                         <div class="q-face-frame" id="q-face-frame">
                             <div class="q-face-corner q-face-corner-tl"></div>
                             <div class="q-face-corner q-face-corner-tr"></div>
@@ -878,12 +863,11 @@
                             <input type="file" id="q-camera-input" accept="image/*" capture="user" style="display:none">
                             <input type="file" id="q-gallery-input" accept="image/*" style="display:none">
                         </div>
-                        <label class="q-terms-row">
+                        <label class="q-terms-row" style="margin-top:20px;margin-bottom:20px;">
                             <input type="checkbox" id="q-accept-terms">
                             <span>Ao continuar, concordo com os <a href="http://provoulevou.com.br/termos.html" target="_blank">Termos e Condi&#231;&#245;es</a></span>
                         </label>
                         <button class="q-btn-black" id="q-btn-generate" disabled>Provar &#243;culos</button>
-                        <p class="q-tip">&#128161; Dica: use uma foto n&#237;tida, de frente, com boa ilumina&#231;&#227;o e sem acess&#243;rios.</p>
                     </div>
 
                     <!-- PIX -->
@@ -1071,8 +1055,8 @@
             }
         }
         const genBtn      = document.getElementById('q-btn-generate');
-        const nextBtn     = document.getElementById('q-btn-next');
-        const phoneStep   = document.getElementById('q-step-phone');
+        const nextBtn     = null; // single-step flow — no next button
+        const phoneStep   = null;
         const photoStep   = document.getElementById('q-step-photo');
         const uploadStep  = photoStep; // alias for PIX/error refs
 
@@ -1203,12 +1187,6 @@
             checkFields();
         };
 
-        // Next button (step 1 → step 2)
-        nextBtn.onclick = function() {
-            phoneStep.style.display = 'none';
-            photoStep.style.display = 'flex';
-        };
-
         // Camera / gallery buttons
         document.getElementById('q-btn-camera').onclick = function() { cameraInput.click(); };
         document.getElementById('q-btn-gallery').onclick = function() { galleryInput.click(); };
@@ -1290,7 +1268,7 @@
             const phoneOk = nums.length >= 10 && nums.length <= 11;
             document.getElementById('q-phone-error').style.display = (phoneInput.value.length > 0 && !phoneOk) ? 'block' : 'none';
             phoneInput.style.borderColor = (phoneInput.value.length > 0 && !phoneOk) ? '#ef4444' : 'var(--q-border)';
-            nextBtn.disabled = !phoneOk;
+            checkFields();
         }
 
         function checkFields() {
