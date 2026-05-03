@@ -574,16 +574,18 @@
             flex-direction: column;
             gap: 12px;
         }
-        .q-res-title, .q-res-subtitle, .q-res-note { display: none; }
-        .q-res-mobile-only {
-            margin: 10px 0 0;
-            font-size: 11px;
-            font-weight: 600;
+        .q-res-subtitle, .q-res-note { display: none; }
+        .q-res-title {
+            display: block;
+            font-size: 16px;
+            font-weight: 700;
             letter-spacing: 1px;
             text-transform: uppercase;
-            color: #666;
-            cursor: pointer;
-            text-decoration: underline;
+            color: #000;
+            margin-bottom: 4px;
+        }
+        .q-res-mobile-only {
+            margin: 0;
             text-underline-offset: 4px;
         }
 
@@ -823,10 +825,11 @@
                     <!-- ETAPA 1: WhatsApp -->
                     <div id="q-step-phone">
                         <div id="q-header-provador" style="margin-bottom:8px;">
+                            <h1 style="margin:0 0 10px 0;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Provador Virtual</h1>
                             <img
                                 src="https://acdn-us.mitiendanube.com/stores/001/081/093/themes/common/logo-8096010581462353213-1770394796-b4592a045554e35cc8410459638c72e31770394796-480-0.webp"
                                 alt="CACIFE"
-                                style="height:28px;width:auto;filter:brightness(0);"
+                                style="height:42px;width:auto;filter:brightness(0);"
                             />
                         </div>
                         <div class="q-progress">
@@ -910,7 +913,7 @@
                         <div id="q-result-actions-col">
                             <span class="q-res-title">Veja como ficou em voc&ecirc; &#x2728;</span>
                             <button class="q-btn-outline" id="q-btn-back">Voltar ao Produto</button>
-                            <p class="q-res-mobile-only" id="q-retry-btn">Tentar outra foto</p>
+                            <button class="q-btn-black q-res-mobile-only" id="q-retry-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;"><i class="ph ph-camera"></i> Tentar outra foto</button>
                             <div id="q-related-products" style="display:none;">
                                 <h4>Veja tamb&eacute;m</h4>
                                 <div class="q-related-grid" id="q-related-grid"></div>
