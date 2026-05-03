@@ -466,9 +466,11 @@
             .q-card-ia.is-result #q-result-actions-col {
                 width: 56% !important; padding: 28px 24px !important;
                 display: flex !important; flex-direction: column !important;
-                justify-content: flex-start; overflow-y: auto; gap: 10px;
+                justify-content: flex-start; gap: 10px;
+                overflow-y: auto; min-height: 0;
+                max-height: calc(540px - 51px);
             }
-            .q-card-ia.is-result #q-related-products { padding: 0; margin-top: 4px; }
+            .q-card-ia.is-result #q-related-products { padding: 0; margin-top: 8px; }
             .q-card-ia.is-result .q-res-mobile-only { display: flex !important; }
         }
 
@@ -584,6 +586,10 @@
                     <div id="q-loading-box">
                         <div>Gerando sua prova...</div>
                         <div class="q-loading-bar"><div></div></div>
+                        <a href="https://provoulevou.com.br" target="_blank" style="margin-top:32px;display:flex;align-items:center;gap:8px;text-decoration:none;opacity:0.45;">
+                            <span style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#111;font-family:var(--font-body);">Powered by</span>
+                            <img src="https://provoulevou.com.br/assets/provoulevou-logo.png" style="height:18px;width:auto;filter:brightness(0);" alt="Provou Levou">
+                        </a>
                     </div>
 
                     <!-- Resultado -->
