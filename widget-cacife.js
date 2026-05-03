@@ -119,14 +119,14 @@
         }
 
         /* ── Trigger (selo sobre foto) ── */
-        @keyframes q-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+        @keyframes q-shake { 0%,50%,100%{transform:rotate(0deg)} 10%,30%{transform:rotate(-10deg)} 20%,40%{transform:rotate(10deg)} }
         .q-btn-trigger-ia {
             position: absolute; top: 14px; right: 14px; z-index: 100;
             background: none; border: none; padding: 0; cursor: pointer;
             width: 68px; height: 68px;
             display: flex; align-items: center; justify-content: center;
             filter: drop-shadow(0 3px 10px rgba(0,0,0,0.22));
-            animation: q-float 3s ease-in-out infinite;
+            animation: q-shake 3s infinite;
             transition: filter 0.2s;
         }
         .q-btn-trigger-ia:hover { filter: drop-shadow(0 6px 18px rgba(0,0,0,0.32)); }
@@ -364,21 +364,36 @@
 
         /* ── Loading ── */
         @keyframes q-slide { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
-        @keyframes q-pulse-text { 0%,100%{opacity:0.4;transform:scale(0.99)} 50%{opacity:1;transform:scale(1)} }
+        @keyframes q-alt-show { 0%,5%{opacity:0;transform:translateY(6px)} 15%,45%{opacity:1;transform:translateY(0)} 55%,100%{opacity:0;transform:translateY(-6px)} }
+        @keyframes q-alt-hide { 0%,55%{opacity:0;transform:translateY(6px)} 65%,95%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(-6px)} }
         #q-loading-box {
             display: none; padding: 28px;
-            text-align: center;
-            flex: 1;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 60vh;
+            text-align: center; flex: 1; flex-direction: column;
+            align-items: center; justify-content: center; min-height: 60vh;
         }
-        #q-loading-box > div:first-child {
+        .q-loading-texts {
+            position: relative; height: 36px; width: 100%;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 24px;
+        }
+        .q-loading-t1, .q-loading-t2 {
+            position: absolute; width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .q-loading-t1 {
             font-family: var(--font-display); font-size: 18px; letter-spacing: 4px;
-            text-transform: uppercase; margin-bottom: 24px;
-            animation: q-pulse-text 1.5s infinite ease-in-out; color: var(--c-ink);
+            text-transform: uppercase; color: var(--c-ink);
+            animation: q-alt-show 3.6s ease-in-out infinite;
         }
+        .q-loading-t2 {
+            animation: q-alt-hide 3.6s ease-in-out infinite;
+            text-decoration: none; opacity: 0;
+        }
+        .q-loading-t2 span {
+            font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--c-muted); font-family: var(--font-body);
+        }
+        .q-loading-t2 img { height: 16px; width: auto; filter: brightness(0); opacity: 0.5; }
         .q-loading-bar { height: 1px; background: var(--c-line); width: 100%; position: relative; overflow: hidden; }
         .q-loading-bar > div {
             position: absolute; top: 0; left: 0; height: 100%; width: 35%;
@@ -584,12 +599,14 @@
 
                     <!-- Loading -->
                     <div id="q-loading-box">
-                        <div>Gerando sua prova...</div>
+                        <div class="q-loading-texts">
+                            <div class="q-loading-t1">Gerando sua prova...</div>
+                            <a href="https://provoulevou.com.br" target="_blank" class="q-loading-t2">
+                                <span>Powered by</span>
+                                <img src="https://provoulevou.com.br/assets/provoulevou-logo.png" alt="Provou Levou">
+                            </a>
+                        </div>
                         <div class="q-loading-bar"><div></div></div>
-                        <a href="https://provoulevou.com.br" target="_blank" style="margin-top:32px;display:flex;align-items:center;gap:8px;text-decoration:none;opacity:0.45;">
-                            <span style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#111;font-family:var(--font-body);">Powered by</span>
-                            <img src="https://provoulevou.com.br/assets/provoulevou-logo.png" style="height:18px;width:auto;filter:brightness(0);" alt="Provou Levou">
-                        </a>
                     </div>
 
                     <!-- Resultado -->
