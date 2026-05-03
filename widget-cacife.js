@@ -665,6 +665,59 @@
             color: #666;
         }
 
+        /* Recomendações no resultado */
+        #q-related-products {
+            width: 100%;
+        }
+        #q-related-products h4 {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #000;
+            margin: 0 0 14px 0;
+            text-align: center;
+        }
+        .q-related-grid {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .q-related-grid::-webkit-scrollbar { display: none; }
+        .q-related-card {
+            flex: 0 0 calc(33.333% - 7px);
+            min-width: 90px;
+            text-decoration: none;
+            color: #000;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .q-related-card img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border: 1px solid #e5e5e5;
+            display: block;
+        }
+        .q-related-card-name {
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #000;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .q-related-card-price {
+            font-size: 11px;
+            font-weight: 700;
+            color: #000;
+        }
+
         #q-step-error {
             display: none;
             flex-direction: column;
@@ -772,6 +825,10 @@
                             <div class="q-res-note"></div>
                             <button class="q-btn-outline" id="q-btn-back">Voltar ao Produto</button>
                             <p class="q-res-mobile-only" id="q-retry-btn">Tentar outra foto</p>
+                        </div>
+                        <div id="q-related-products" style="display:none;">
+                            <h4>Veja tamb&eacute;m</h4>
+                            <div class="q-related-grid" id="q-related-grid"></div>
                         </div>
                     </div>
                 </div>
@@ -1046,6 +1103,65 @@
 
         triggerUpload.onclick = () => realInput.click();
 
+        function loadRelatedProducts() {
+            var grid = document.getElementById('q-related-grid');
+            var section = document.getElementById('q-related-products');
+            if (!grid || !section) return;
+
+            var items = document.querySelectorAll('.js-swiper-related .js-item-product');
+            if (!items.length) items = document.querySelectorAll('.js-item-product');
+            var products = [];
+
+            items.forEach(function(item) {
+                if (products.length >= 3) return;
+                var container = item.querySelector('[data-variants]');
+                if (!container) return;
+                try {
+                    var variants = JSON.parse(container.getAttribute('data-variants'));
+                    if (!variants || !variants.length) return;
+                    var v = variants[0];
+                    var imgRaw = v.image_url || '';
+                    var img = imgRaw ? 'https:' + imgRaw.replace(/\\/g, '').replace('-1024-1024.webp', '-480-0.webp') : '';
+                    var price = v.price_short || '';
+                    var nameEl = item.querySelector('.js-item-name, .item-name, [data-item-name], h3 a, a[href*="/produtos/"]');
+                    var name = nameEl ? nameEl.textContent.trim() : '';
+                    var link = nameEl ? (nameEl.getAttribute('href') || '') : '';
+                    if (!link) {
+                        var linkEl = item.querySelector('a[href*="/produtos/"]');
+                        if (linkEl) link = linkEl.getAttribute('href');
+                    }
+                    if (img && (name || price)) {
+                        products.push({ name: name, img: img, price: price, link: link });
+                    }
+                } catch(e) {}
+            });
+
+            if (!products.length) return;
+
+            while (grid.firstChild) grid.removeChild(grid.firstChild);
+            products.forEach(function(p) {
+                var a = document.createElement('a');
+                a.className = 'q-related-card';
+                a.href = p.link || '#';
+                a.target = '_blank';
+                var img = document.createElement('img');
+                img.src = p.img;
+                img.alt = p.name;
+                img.loading = 'lazy';
+                var nameEl = document.createElement('span');
+                nameEl.className = 'q-related-card-name';
+                nameEl.textContent = p.name;
+                var priceEl = document.createElement('span');
+                priceEl.className = 'q-related-card-price';
+                priceEl.textContent = p.price;
+                a.appendChild(img);
+                a.appendChild(nameEl);
+                a.appendChild(priceEl);
+                grid.appendChild(a);
+            });
+            section.style.display = 'block';
+        }
+
         function showError() {
             var lb = document.getElementById('q-loading-box');
             var su = document.getElementById('q-step-upload');
@@ -1255,6 +1371,7 @@
                     document.getElementById('q-final-view-img').src = URL.createObjectURL(blob);
                     document.querySelector('.q-card-ia').classList.add('is-result');
                     document.getElementById('q-step-result').style.display = 'flex';
+                    loadRelatedProducts();
                 } else if (res.status === 401 || res.status === 403) {
                     document.getElementById('q-loading-box').style.display = 'none';
                     document.getElementById('q-step-upload').style.display = 'block';
