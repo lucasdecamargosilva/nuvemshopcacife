@@ -464,11 +464,11 @@
                 object-fit: cover !important; object-position: top center !important;
             }
             .q-card-ia.is-result #q-result-actions-col {
-                width: 56% !important; padding: 24px !important;
+                width: 56% !important; padding: 28px 24px !important;
                 display: flex !important; flex-direction: column !important;
-                justify-content: center; overflow-y: auto;
+                justify-content: flex-start; overflow-y: auto; gap: 10px;
             }
-            .q-card-ia.is-result #q-related-products { padding: 0 24px 24px; }
+            .q-card-ia.is-result #q-related-products { padding: 0; margin-top: 4px; }
             .q-card-ia.is-result .q-res-mobile-only { display: flex !important; }
         }
 
