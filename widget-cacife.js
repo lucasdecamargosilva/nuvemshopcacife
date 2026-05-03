@@ -139,7 +139,7 @@
             width: 100%; padding: 13px 16px;
             background: transparent; color: var(--c-ink);
             border: 1.5px solid var(--c-ink); border-radius: 0;
-            font-family: var(--font-display); font-size: 15px; letter-spacing: 2px;
+            font-family: 'Work Sans', var(--font-body), sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
             cursor: pointer; transition: background 0.25s, color 0.25s;
             margin-bottom: 10px; box-sizing: border-box;
         }
