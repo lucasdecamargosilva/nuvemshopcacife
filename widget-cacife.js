@@ -816,7 +816,7 @@
                             <img id="q-final-view-img">
                         </div>
                         <div id="q-result-actions-col">
-                            <span class="q-res-title">Provador Virtual</span>
+                            <span class="q-res-title">Veja como ficou em voc&ecirc; ✨</span>
                             <div class="q-res-note"></div>
                             <button class="q-btn-outline" id="q-btn-back">Voltar ao Produto</button>
                             <p class="q-res-mobile-only" id="q-retry-btn">Tentar outra foto</p>
@@ -1123,13 +1123,12 @@
                     var imgRaw = v.image_url || '';
                     var img = imgRaw ? 'https:' + imgRaw.replace(/\\/g, '').replace('-1024-1024.webp', '-480-0.webp') : '';
                     var price = v.price_short || '';
-                    var nameEl = item.querySelector('.js-item-name, .item-name, [data-item-name], h3 a, a[href*="/produtos/"]');
-                    var name = nameEl ? nameEl.textContent.trim() : '';
-                    var link = nameEl ? (nameEl.getAttribute('href') || '') : '';
-                    if (!link) {
-                        var linkEl = item.querySelector('a[href*="/produtos/"]');
-                        if (linkEl) link = linkEl.getAttribute('href');
-                    }
+                    // Name from img alt (Nuvemshop sets it reliably)
+                    var imgEl = item.querySelector('img[alt]');
+                    var name = imgEl ? imgEl.getAttribute('alt').trim() : '';
+                    // Link from any anchor pointing to /produtos/
+                    var linkEl = item.querySelector('a[href*="/produtos/"]');
+                    var link = linkEl ? linkEl.getAttribute('href') : '';
                     if (img && (name || price)) {
                         products.push({ name: name, img: img, price: price, link: link });
                     }
