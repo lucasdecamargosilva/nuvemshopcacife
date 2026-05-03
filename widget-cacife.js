@@ -774,6 +774,7 @@
             background: #f5f5f5; border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; border: 2px dashed #ddd;
+            cursor: pointer;
         }
         .q-face-frame img { width: 100%; height: 100%; object-fit: cover; display: none; }
         .q-face-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -1196,6 +1197,7 @@
         // Camera / gallery buttons
         document.getElementById('q-btn-camera').onclick = function() { cameraInput.click(); };
         document.getElementById('q-btn-gallery').onclick = function() { galleryInput.click(); };
+        document.getElementById('q-face-frame').onclick = function() { galleryInput.click(); };
 
         function loadRelatedProducts() {
             var grid = document.getElementById('q-related-grid');
