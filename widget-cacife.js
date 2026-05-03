@@ -830,6 +830,11 @@
                             <h4>Veja tamb&eacute;m</h4>
                             <div class="q-related-grid" id="q-related-grid"></div>
                         </div>
+                    <div id="q-step-error">
+                        <h2>Provador fora do ar</h2>
+                        <p>Voltamos em breve &#x1F64F;</p>
+                        <button class="q-btn-outline" id="q-error-back">Voltar ao Produto</button>
+                    </div>
                     </div>
                 </div>
                 <a href="https://provoulevou.com.br" target="_blank" class="q-powered-footer">
@@ -1170,7 +1175,7 @@
             if (su) su.style.display = 'none';
             if (se) se.style.display = 'flex';
         }
-        document.getElementById('q-error-back').onclick = function() { closeModal(); };
+        var _eb = document.getElementById('q-error-back'); if (_eb) _eb.onclick = function() { closeModal(); };
 
 
 
