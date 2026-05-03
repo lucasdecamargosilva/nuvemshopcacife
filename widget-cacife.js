@@ -609,6 +609,7 @@
             .q-card-ia.is-result #q-step-result {
                 display: flex !important;
                 flex-direction: row !important;
+                flex-wrap: wrap !important;
                 width: 100%; height: 100%;
                 align-items: stretch;
                 gap: 0 !important;
@@ -638,9 +639,12 @@
             }
             .q-card-ia.is-result .q-res-title {
                 display: block !important;
+                flex-basis: 100%;
+                order: -1;
                 font-size: 20px; font-weight: 700;
                 letter-spacing: 2px; text-transform: uppercase;
                 color: #000; margin-bottom: 4px;
+                padding: 16px 20px 0;
             }
             .q-card-ia.is-result .q-res-mobile-only { display: none !important; }
             .q-card-ia.is-result .q-close-ia { top: 16px; right: 16px; z-index: 10; }
@@ -677,7 +681,7 @@
             letter-spacing: 2px;
             text-transform: uppercase;
             color: #000;
-            margin: 0 0 14px 0;
+            margin: 28px 0 14px 0;
             text-align: center;
         }
         .q-related-grid {
@@ -798,12 +802,13 @@
         .q-upload-btn:hover { background: #000; color: #fff; }
         .q-upload-btn i { font-size: 18px; }
         .q-tip-box {
-            display: flex; align-items: flex-start; gap: 10px;
-            background: #f5f5f5; border-left: 3px solid #000;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: #fefce8; border-left: 3px solid #ca8a04;
             padding: 12px 14px; margin-bottom: 20px;
-            font-size: 12px; color: #444; line-height: 1.5;
-            border-radius: 8px;
+            font-size: 12px; color: #713f12; line-height: 1.5;
+            border-radius: 8px; text-align: center;
         }
+        .q-tip-box i { color: #ca8a04; }
         .q-tip-box i { font-size: 18px; flex-shrink: 0; color: #000; margin-top: 1px; }
 
         #q-step-photo { display: flex; flex-direction: column; gap: 0; align-items: stretch; }
@@ -831,7 +836,7 @@
                             <img
                                 src="https://acdn-us.mitiendanube.com/stores/001/081/093/themes/common/logo-8096010581462353213-1770394796-b4592a045554e35cc8410459638c72e31770394796-480-0.webp"
                                 alt="CACIFE"
-                                style="height:42px;width:auto;filter:brightness(0);"
+                                style="height:58px;width:auto;filter:brightness(0);"
                             />
                         </div>
                         <div class="q-form-row" style="margin-bottom:20px;">
@@ -892,11 +897,11 @@
 
                     <!-- Resultado -->
                     <div id="q-step-result">
+                        <span class="q-res-title">Veja como ficou em voc&ecirc; &#x2728;</span>
                         <div id="q-result-img-col">
                             <img id="q-final-view-img">
                         </div>
                         <div id="q-result-actions-col">
-                            <span class="q-res-title">Veja como ficou em voc&ecirc; &#x2728;</span>
                             <button class="q-btn-outline" id="q-btn-back">Voltar ao Produto</button>
                             <button class="q-btn-black q-res-mobile-only" id="q-retry-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;"><i class="ph ph-camera"></i> Tentar outra foto</button>
                             <div id="q-related-products" style="display:none;">
