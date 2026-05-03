@@ -248,6 +248,7 @@
             font-family: var(--font-display);
             font-size: 20px; letter-spacing: 3px; text-transform: uppercase;
             color: var(--c-ink); margin: 0 0 14px; font-weight: 400;
+            text-align: center;
         }
 
         /* ── Tip ── */
@@ -306,6 +307,7 @@
             display: flex; align-items: flex-start; gap: 10px;
             font-size: 11.5px; color: var(--c-muted); cursor: pointer;
             line-height: 1.5; margin-bottom: 20px;
+            justify-content: center; text-align: center;
         }
         .q-terms-row input { margin-top: 3px; cursor: pointer; accent-color: var(--c-ink); flex-shrink: 0; }
         .q-terms-row a { color: var(--c-ink); text-decoration: underline; text-underline-offset: 2px; }
