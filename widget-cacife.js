@@ -1148,10 +1148,8 @@
         function populateImageSelector() {
             const imgs = extractImages();
             const group = document.getElementById('q-photo-selector-group');
-
-            group.style.display = 'none';
+            if (group) group.style.display = 'none';
             selectedProductImgUrl = imgs[0] || '';
-            return;
         }
 
         function openModal() {
