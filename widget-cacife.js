@@ -394,13 +394,15 @@
             letter-spacing: 3px; text-transform: uppercase;
             color: var(--c-ink); padding: 20px 28px 16px; margin: 0;
             border-bottom: 1px solid var(--c-line);
+            text-align: center;
         }
         .q-res-subtitle, .q-res-note { display: none; }
 
         #q-result-img-col {
-            width: 100%; background: var(--c-surface); overflow: hidden;
+            width: 100%; max-height: 52vh; background: var(--c-surface);
+            overflow: hidden; display: flex; align-items: center; justify-content: center;
         }
-        #q-result-img-col img { width: 100%; height: auto; display: block; }
+        #q-result-img-col img { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
 
         #q-result-actions-col {
             display: flex; flex-direction: column; gap: 10px;
