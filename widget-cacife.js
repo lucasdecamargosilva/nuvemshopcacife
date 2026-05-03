@@ -735,10 +735,74 @@
             margin: 0;
             line-height: 1.6;
         }
-        .q-quantic-logo {
-            height: 22px;
-            filter: brightness(0);
+        .q-quantic-logo { height: 22px; filter: brightness(0); }
+
+        /* ── Progress dots ── */
+        .q-progress {
+            display: flex; align-items: center; justify-content: center;
+            gap: 0; margin-bottom: 32px;
         }
+        .q-progress-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #e0e0e0; flex-shrink: 0; transition: background 0.3s;
+        }
+        .q-progress-dot.q-done, .q-progress-dot.q-active { background: #000; }
+        .q-progress-line {
+            width: 40px; height: 2px; background: #e0e0e0; flex-shrink: 0; transition: background 0.3s;
+        }
+        .q-progress-line.q-active { background: #000; }
+
+        /* ── Step titles ── */
+        .q-step-title {
+            font-size: 22px; font-weight: 700; letter-spacing: 0;
+            text-transform: none; margin: 0 0 8px; color: #000; text-align: center;
+        }
+        .q-step-subtitle {
+            font-size: 13px; color: #666; margin: 0 0 28px; text-align: center; line-height: 1.5;
+        }
+
+        /* ── Face viewfinder ── */
+        .q-face-frame {
+            position: relative; width: 220px; height: 280px;
+            margin: 0 auto 28px;
+            background: #f5f5f5; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; border: 2px dashed #ddd;
+        }
+        .q-face-frame img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .q-face-placeholder { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .q-face-placeholder i { font-size: 80px; color: #ccc; }
+        .q-face-corner {
+            position: absolute; width: 24px; height: 24px;
+            border-color: #000; border-style: solid;
+        }
+        .q-face-corner-tl { top: -1px; left: -1px; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
+        .q-face-corner-tr { top: -1px; right: -1px; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
+        .q-face-corner-bl { bottom: -1px; left: -1px; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
+        .q-face-corner-br { bottom: -1px; right: -1px; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
+
+        /* ── Upload buttons ── */
+        .q-upload-btns {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; width: 100%; margin-bottom: 20px;
+        }
+        .q-upload-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 14px 10px; border: 1px solid #000;
+            background: transparent; color: #000;
+            font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
+        }
+        .q-upload-btn:hover { background: #000; color: #fff; }
+        .q-upload-btn i { font-size: 18px; }
+        .q-tip {
+            font-size: 11px; color: #999; text-align: center;
+            margin: 12px 0 0; line-height: 1.5;
+        }
+
+        /* ── Step phone ── */
+        #q-step-phone { display: flex; flex-direction: column; gap: 24px; }
+        #q-step-photo { display: none; flex-direction: column; gap: 0; align-items: stretch; }
     `;
 
 
@@ -755,69 +819,96 @@
             <div class="q-card-ia">
                 <button type="button" class="q-close-ia" id="q-close-btn">&times;</button>
                 <div class="q-content-scroll">
-                    <div id="q-header-provador">
-                        <h1>Provador Virtual</h1>
-                        <img
-                            src="https://acdn-us.mitiendanube.com/stores/001/081/093/themes/common/logo-8096010581462353213-1770394796-b4592a045554e35cc8410459638c72e31770394796-480-0.webp"
-                            alt="CACIFE"
-                            style="height:30px;width:auto;filter:brightness(0);"
-                        />
-                    </div>
-                    <div id="q-step-upload">
+
+                    <!-- ETAPA 1: WhatsApp -->
+                    <div id="q-step-phone">
+                        <div id="q-header-provador" style="margin-bottom:8px;">
+                            <img
+                                src="https://acdn-us.mitiendanube.com/stores/001/081/093/themes/common/logo-8096010581462353213-1770394796-b4592a045554e35cc8410459638c72e31770394796-480-0.webp"
+                                alt="CACIFE"
+                                style="height:28px;width:auto;filter:brightness(0);"
+                            />
+                        </div>
+                        <div class="q-progress">
+                            <div class="q-progress-dot q-active"></div>
+                            <div class="q-progress-line"></div>
+                            <div class="q-progress-dot"></div>
+                            <div class="q-progress-line"></div>
+                            <div class="q-progress-dot"></div>
+                        </div>
                         <div class="q-form-row">
-                            <label>Seu Celular</label>
+                            <label>Seu WhatsApp</label>
                             <input type="tel" id="q-phone" class="q-input" placeholder="(11) 99999-9999" maxlength="15">
-                            <div id="q-phone-error" class="q-status-msg">Insira um número válido</div>
+                            <div id="q-phone-error" class="q-status-msg">Insira um n&#250;mero v&#225;lido</div>
                         </div>
+                        <button class="q-btn-black" id="q-btn-next" disabled>Pr&#243;ximo</button>
+                    </div>
 
-                        <div class="q-form-row" id="q-photo-selector-group" style="display:none;">
-                            <label>Selecione a foto da peça:</label>
-                            <div id="q-product-images-container" style="display:flex; gap:15px; justify-content:center;"></div>
+                    <!-- ETAPA 2: Foto -->
+                    <div id="q-step-photo">
+                        <div class="q-progress" style="margin-bottom:24px;">
+                            <div class="q-progress-dot q-done"></div>
+                            <div class="q-progress-line q-active"></div>
+                            <div class="q-progress-dot q-active"></div>
+                            <div class="q-progress-line"></div>
+                            <div class="q-progress-dot"></div>
                         </div>
-
-                        <div id="q-upload-row">
-                            <div id="q-trigger-upload">
-                                <i class="ph ph-camera-plus"></i>
-                                <span>Enviar Foto</span>
-                                <input type="file" id="q-real-input" accept="image/*" style="display:none">
+                        <h2 class="q-step-title">Agora, envie sua foto</h2>
+                        <p class="q-step-subtitle">Para gerar o resultado com os &#243;culos</p>
+                        <div class="q-face-frame" id="q-face-frame">
+                            <div class="q-face-corner q-face-corner-tl"></div>
+                            <div class="q-face-corner q-face-corner-tr"></div>
+                            <div class="q-face-corner q-face-corner-bl"></div>
+                            <div class="q-face-corner q-face-corner-br"></div>
+                            <img id="q-pre-img" alt="Sua foto">
+                            <div class="q-face-placeholder" id="q-face-placeholder">
+                                <i class="ph ph-user-circle" style="font-size:90px;color:#ccc;"></i>
                             </div>
-                            <div id="q-pre-view">
-                                <img id="q-pre-img">
-                            </div>
                         </div>
-
+                        <div class="q-upload-btns">
+                            <button class="q-upload-btn" id="q-btn-camera">
+                                <i class="ph ph-camera"></i> Tirar foto
+                            </button>
+                            <button class="q-upload-btn" id="q-btn-gallery">
+                                <i class="ph ph-image"></i> Enviar da galeria
+                            </button>
+                            <input type="file" id="q-camera-input" accept="image/*" capture="user" style="display:none">
+                            <input type="file" id="q-gallery-input" accept="image/*" style="display:none">
+                        </div>
                         <label class="q-terms-row">
                             <input type="checkbox" id="q-accept-terms">
-                            <span>Ao continuar, concordo com os <a href="http://provoulevou.com.br/termos.html" target="_blank">Termos e Condições</a></span>
+                            <span>Ao continuar, concordo com os <a href="http://provoulevou.com.br/termos.html" target="_blank">Termos e Condi&#231;&#245;es</a></span>
                         </label>
-
-                        <button class="q-btn-black" id="q-btn-generate" disabled>Provar óculos</button>
+                        <button class="q-btn-black" id="q-btn-generate" disabled>Provar &#243;culos</button>
+                        <p class="q-tip">&#128161; Dica: use uma foto n&#237;tida, de frente, com boa ilumina&#231;&#227;o e sem acess&#243;rios.</p>
                     </div>
 
+                    <!-- PIX -->
                     <div id="q-step-pix">
                         <h2>Prova Extra</h2>
-                        <p class="q-pix-subtitle">Você atingiu o limite de 3 provas grátis.<br>Pague R$1 via PIX para gerar mais uma:</p>
+                        <p class="q-pix-subtitle">Voc&#234; atingiu o limite de 3 provas gr&#225;tis.<br>Pague R$1 via PIX para gerar mais uma:</p>
                         <div class="q-pix-qr"><img id="q-pix-qr-img" alt="QR Code PIX"></div>
                         <div class="q-pix-copiacola">
-                            <input type="text" id="q-pix-code" readonly placeholder="Código PIX...">
+                            <input type="text" id="q-pix-code" readonly placeholder="C&#243;digo PIX...">
                             <button id="q-pix-copy-btn">Copiar</button>
                         </div>
                         <div id="q-pix-status-msg" class="q-pix-status q-pix-waiting">Aguardando pagamento...</div>
                         <p class="q-pix-cancel" id="q-pix-cancel">Cancelar</p>
                     </div>
 
+                    <!-- Loading -->
                     <div id="q-loading-box">
                         <div>Gerando Prova Virtual...</div>
                         <div class="q-loading-bar"><div></div></div>
                     </div>
 
+                    <!-- Resultado -->
                     <div id="q-step-result">
                         <div id="q-result-img-col">
                             <img id="q-final-view-img">
                         </div>
                         <div id="q-result-actions-col">
-                            <span class="q-res-title">Veja como ficou em voc&ecirc; ✨</span>
-                            <div class="q-res-note"></div>
+                            <span class="q-res-title">Veja como ficou em voc&ecirc; &#x2728;</span>
                             <button class="q-btn-outline" id="q-btn-back">Voltar ao Produto</button>
                             <p class="q-res-mobile-only" id="q-retry-btn">Tentar outra foto</p>
                             <div id="q-related-products" style="display:none;">
@@ -825,12 +916,15 @@
                                 <div class="q-related-grid" id="q-related-grid"></div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Erro -->
                     <div id="q-step-error">
                         <h2>Provador fora do ar</h2>
                         <p>Voltamos em breve &#x1F64F;</p>
                         <button class="q-btn-outline" id="q-error-back">Voltar ao Produto</button>
                     </div>
-                    </div>
+
                 </div>
                 <a href="https://provoulevou.com.br" target="_blank" class="q-powered-footer">
                     <span>Powered by</span>
@@ -973,16 +1067,23 @@
                 variantsContainer.parentNode.insertBefore(inlineBtn, variantsContainer.nextSibling);
             }
         }
-        const genBtn = document.getElementById('q-btn-generate');
-        const uploadStep = document.getElementById('q-step-upload');
+        const genBtn      = document.getElementById('q-btn-generate');
+        const nextBtn     = document.getElementById('q-btn-next');
+        const phoneStep   = document.getElementById('q-step-phone');
+        const photoStep   = document.getElementById('q-step-photo');
+        const uploadStep  = photoStep; // alias for PIX/error refs
 
-        const closeBtn = document.getElementById('q-close-btn');
-        const backBtn = document.getElementById('q-btn-back');
-        const retryBtn = document.getElementById('q-retry-btn');
-        const realInput = document.getElementById('q-real-input');
-        const triggerUpload = document.getElementById('q-trigger-upload');
-        const phoneInput = document.getElementById('q-phone');
+        const closeBtn    = document.getElementById('q-close-btn');
+        const backBtn     = document.getElementById('q-btn-back');
+        const retryBtn    = document.getElementById('q-retry-btn');
+        const cameraInput = document.getElementById('q-camera-input');
+        const galleryInput= document.getElementById('q-gallery-input');
+        const phoneInput  = document.getElementById('q-phone');
+        const preImg      = document.getElementById('q-pre-img');
+        const facePlaceholder = document.getElementById('q-face-placeholder');
 
+        // keep realInput alias so PIX code still works
+        const realInput   = galleryInput;
 
         let userPhoto = null;
         let selectedProductImgUrl = '';
@@ -1093,15 +1194,23 @@
 
         retryBtn.onclick = () => {
             document.getElementById('q-step-result').style.display = 'none';
-            document.getElementById('q-step-upload').style.display = 'block';
+            photoStep.style.display = 'flex';
             document.querySelector('.q-card-ia').classList.remove('is-result');
             userPhoto = null;
-            document.getElementById('q-pre-view').style.display = 'none';
+            preImg.style.display = 'none';
+            if (facePlaceholder) facePlaceholder.style.display = 'flex';
             checkFields();
         };
 
+        // Next button (step 1 → step 2)
+        nextBtn.onclick = function() {
+            phoneStep.style.display = 'none';
+            photoStep.style.display = 'flex';
+        };
 
-        triggerUpload.onclick = () => realInput.click();
+        // Camera / gallery buttons
+        document.getElementById('q-btn-camera').onclick = function() { cameraInput.click(); };
+        document.getElementById('q-btn-gallery').onclick = function() { galleryInput.click(); };
 
         function loadRelatedProducts() {
             var grid = document.getElementById('q-related-grid');
@@ -1159,7 +1268,7 @@
 
         function showError() {
             var lb = document.getElementById('q-loading-box');
-            var su = document.getElementById('q-step-upload');
+            var su = photoStep;
             var se = document.getElementById('q-step-error');
             if (lb) lb.style.display = 'none';
             if (su) su.style.display = 'none';
@@ -1172,40 +1281,40 @@
         phoneInput.addEventListener('input', function (e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
             e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
-            checkFields();
+            checkPhoneStep();
         });
 
-
-        function checkFields() {
+        function checkPhoneStep() {
             const nums = phoneInput.value.replace(/\D/g, '');
             const phoneOk = nums.length >= 10 && nums.length <= 11;
             document.getElementById('q-phone-error').style.display = (phoneInput.value.length > 0 && !phoneOk) ? 'block' : 'none';
             phoneInput.style.borderColor = (phoneInput.value.length > 0 && !phoneOk) ? '#ef4444' : 'var(--q-border)';
+            nextBtn.disabled = !phoneOk;
+        }
 
+        function checkFields() {
+            const nums = phoneInput.value.replace(/\D/g, '');
+            const phoneOk = nums.length >= 10 && nums.length <= 11;
             genBtn.disabled = !(userPhoto && phoneOk && document.getElementById('q-accept-terms').checked);
         }
 
-
-        ['q-h-val', 'q-w-val', 'q-cin-val', 'q-quad-val'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.addEventListener('input', checkFields);
-        });
-
         document.getElementById('q-accept-terms').onchange = checkFields;
 
+        function handlePhotoSelected(file) {
+            if (!file) return;
+            userPhoto = file;
+            const rd = new FileReader();
+            rd.onload = ev => {
+                preImg.src = ev.target.result;
+                preImg.style.display = 'block';
+                if (facePlaceholder) facePlaceholder.style.display = 'none';
+                checkFields();
+            };
+            rd.readAsDataURL(file);
+        }
 
-        realInput.onchange = (e) => {
-            userPhoto = e.target.files[0];
-            if (userPhoto) {
-                const rd = new FileReader();
-                rd.onload = ev => {
-                    document.getElementById('q-pre-img').src = ev.target.result;
-                    document.getElementById('q-pre-view').style.display = 'block';
-                    checkFields();
-                };
-                rd.readAsDataURL(userPhoto);
-            }
-        };
+        cameraInput.onchange  = (e) => handlePhotoSelected(e.target.files[0]);
+        galleryInput.onchange = (e) => handlePhotoSelected(e.target.files[0]);
 
 
         function resizeImage(fileOrBlob, maxSize) {
@@ -1350,7 +1459,7 @@
                     const data = await res.json();
                     if (data.error) {
                         document.getElementById('q-loading-box').style.display = 'none';
-                        document.getElementById('q-step-upload').style.display = 'block';
+                        photoStep.style.display = 'flex';
                         if (data.error === "Chave invalida, vencida ou inativa." || data.error.includes("vencida ou inativa")) {
                             alert("App desativado nesta loja");
                         } else {
@@ -1369,12 +1478,12 @@
                     loadRelatedProducts();
                 } else if (res.status === 401 || res.status === 403) {
                     document.getElementById('q-loading-box').style.display = 'none';
-                    document.getElementById('q-step-upload').style.display = 'block';
+                    photoStep.style.display = 'flex';
                     alert("App desativado nesta loja");
                 } else { throw new Error(); }
             } catch (e) {
                 document.getElementById('q-loading-box').style.display = 'none';
-                document.getElementById('q-step-upload').style.display = 'block';
+                photoStep.style.display = 'flex';
                 alert('Ocorreu um erro ao processar sua imagem (ou chave/servidor indisponíveis). Tente novamente.');
             }
         }
