@@ -131,7 +131,7 @@
         }
         .q-btn-trigger-ia:hover { filter: drop-shadow(0 6px 18px rgba(0,0,0,0.32)); }
         .q-btn-trigger-ia img { width: 100%; height: 100%; object-fit: contain; }
-        @media (min-width: 768px) { .q-btn-trigger-ia { width: 60px; height: 60px; } }
+        @media (min-width: 768px) { .q-btn-trigger-ia { width: 85px; height: 85px; } }
 
         /* ── Inline button ── */
         .q-btn-inline-provador {
