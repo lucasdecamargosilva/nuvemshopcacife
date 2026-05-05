@@ -434,20 +434,20 @@
         }
         .q-related-grid {
             display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
-            -webkit-overflow-scrolling: touch;
+            -webkit-overflow-scrolling: touch; justify-content: center;
         }
         .q-related-grid::-webkit-scrollbar { display: none; }
         .q-related-card {
-            flex: 0 0 calc(33.333% - 7px); min-width: 88px;
+            flex: 0 0 calc(26% - 7px); min-width: 72px; max-width: 88px;
             text-decoration: none; color: var(--c-ink);
-            display: flex; flex-direction: column; gap: 6px;
+            display: flex; flex-direction: column; gap: 5px;
         }
         .q-related-card img {
             width: 100%; aspect-ratio: 1/1; object-fit: cover;
             border: 1px solid var(--c-line); display: block; border-radius: 3px;
         }
         .q-related-card-name {
-            font-size: 10px; font-weight: 500; line-height: 1.4; color: var(--c-ink);
+            font-size: 9px; font-weight: 500; line-height: 1.4; color: var(--c-ink);
             overflow: hidden; display: -webkit-box;
             -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         }
@@ -986,7 +986,7 @@
 
         function checkPhoneStep() {
             const nums = phoneInput.value.replace(/\D/g, '');
-            const phoneOk = nums.length >= 10 && nums.length <= 11;
+            const phoneOk = (nums.length === 10 || nums.length === 11) && /^[1-9][1-9]/.test(nums) && (nums.length === 10 || nums[2] === '9');
             document.getElementById('q-phone-error').style.display = (phoneInput.value.length > 0 && !phoneOk) ? 'block' : 'none';
             phoneInput.style.borderColor = (phoneInput.value.length > 0 && !phoneOk) ? '#ef4444' : 'var(--q-border)';
             checkFields();
@@ -994,7 +994,7 @@
 
         function checkFields() {
             const nums = phoneInput.value.replace(/\D/g, '');
-            const phoneOk = nums.length >= 10 && nums.length <= 11;
+            const phoneOk = (nums.length === 10 || nums.length === 11) && /^[1-9][1-9]/.test(nums) && (nums.length === 10 || nums[2] === '9');
             genBtn.disabled = !(userPhoto && phoneOk && document.getElementById('q-accept-terms').checked);
         }
 
