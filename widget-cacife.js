@@ -434,20 +434,20 @@
         }
         .q-related-grid {
             display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
-            -webkit-overflow-scrolling: touch; justify-content: center;
+            -webkit-overflow-scrolling: touch;
         }
         .q-related-grid::-webkit-scrollbar { display: none; }
         .q-related-card {
-            flex: 0 0 calc(26% - 7px); min-width: 72px; max-width: 88px;
+            flex: 0 0 calc(33.333% - 7px); min-width: 88px;
             text-decoration: none; color: var(--c-ink);
-            display: flex; flex-direction: column; gap: 5px;
+            display: flex; flex-direction: column; gap: 6px;
         }
         .q-related-card img {
             width: 100%; aspect-ratio: 1/1; object-fit: cover;
             border: 1px solid var(--c-line); display: block; border-radius: 3px;
         }
         .q-related-card-name {
-            font-size: 9px; font-weight: 500; line-height: 1.4; color: var(--c-ink);
+            font-size: 10px; font-weight: 500; line-height: 1.4; color: var(--c-ink);
             overflow: hidden; display: -webkit-box;
             -webkit-line-clamp: 2; -webkit-box-orient: vertical;
         }
