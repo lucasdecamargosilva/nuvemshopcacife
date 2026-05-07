@@ -870,6 +870,8 @@
             }
             modal.style.display = 'flex';
             lockBodyScroll();
+            // Mostra contador imediatamente (só por IP) ao abrir o modal
+            if (typeof _checkProvasRestantes === 'function') _checkProvasRestantes();
         }
 
 
@@ -999,9 +1001,9 @@
             if (!_provasMsg) return;
             const nums = phoneInput.value.replace(/\D/g, '');
             const phoneOk = (nums.length === 10 || nums.length === 11) && /^[1-9][1-9]/.test(nums) && (nums.length === 10 || nums[2] === '9');
-            if (!phoneOk) { _provasMsg.textContent = ''; _provasMsg.classList.remove('is-warn'); return; }
+            // Phone vazio/incompleto → manda '0' pra pegar só o ip_count.
+            const phone = phoneOk ? '55' + nums : '0';
             try {
-                const phone = '55' + nums;
                 const r = await fetch(WEBHOOK_CHECK_LIMIT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
