@@ -238,6 +238,13 @@
         }
         .q-input:focus { border-color: var(--c-ink); background: #fff; }
         .q-input::placeholder { color: #bbb; }
+
+        .q-provas-msg {
+            font-size: 11px; margin-top: 6px; letter-spacing: 0.3px;
+            color: var(--c-muted); min-height: 14px; transition: color 0.2s;
+        }
+        .q-provas-msg.is-warn { color: var(--c-danger); font-weight: 500; }
+
         .q-status-msg {
             display: none; font-size: 11px; color: var(--c-danger);
             font-weight: 500; margin-top: 6px; letter-spacing: 0.3px;
@@ -537,6 +544,7 @@
                             <span class="q-field-label">Seu WhatsApp</span>
                             <input type="tel" id="q-phone" class="q-input" placeholder="(11) 99999-9999" maxlength="15">
                             <div id="q-phone-error" class="q-status-msg">N&#250;mero inv&#225;lido</div>
+                            <div id="q-provas-restantes" class="q-provas-msg"></div>
                         </div>
 
                         <!-- Photo section -->
@@ -984,6 +992,38 @@
             e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
             checkPhoneStep();
         });
+        // ── Contador de provas restantes (debounced) ──
+        let _provasDebounce;
+        const _provasMsg = document.getElementById('q-provas-restantes');
+        async function _checkProvasRestantes() {
+            if (!_provasMsg) return;
+            const nums = phoneInput.value.replace(/\D/g, '');
+            const phoneOk = (nums.length === 10 || nums.length === 11) && /^[1-9][1-9]/.test(nums) && (nums.length === 10 || nums[2] === '9');
+            if (!phoneOk) { _provasMsg.textContent = ''; _provasMsg.classList.remove('is-warn'); return; }
+            try {
+                const phone = '55' + nums;
+                const r = await fetch(WEBHOOK_CHECK_LIMIT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                const d = await r.json();
+                const used = (d.phone_count !== undefined ? d.phone_count : (d.count || 0));
+                const restantes = Math.max(0, 3 - used);
+                if (restantes > 0) {
+                    _provasMsg.textContent = restantes + (restantes === 1 ? ' prova restante hoje' : ' provas restantes hoje');
+                    _provasMsg.classList.remove('is-warn');
+                } else {
+                    _provasMsg.textContent = 'Limite de 3 provas atingido — pague R$1 via PIX para mais uma.';
+                    _provasMsg.classList.add('is-warn');
+                }
+            } catch(_) { _provasMsg.textContent = ''; _provasMsg.classList.remove('is-warn'); }
+        }
+        phoneInput.addEventListener('input', () => {
+            clearTimeout(_provasDebounce);
+            _provasDebounce = setTimeout(_checkProvasRestantes, 600);
+        });
+
 
         function checkPhoneStep() {
             const nums = phoneInput.value.replace(/\D/g, '');
