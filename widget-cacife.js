@@ -239,11 +239,23 @@
         .q-input:focus { border-color: var(--c-ink); background: #fff; }
         .q-input::placeholder { color: #bbb; }
 
+        .q-provas-msg:empty { display: none; }
         .q-provas-msg {
-            font-size: 11px; margin-top: 6px; letter-spacing: 0.3px;
-            color: var(--c-muted); min-height: 14px; transition: color 0.2s;
+            font-size: 13px; margin-top: 10px; letter-spacing: 0.3px;
+            color: var(--c-ink); font-weight: 500;
+            background: var(--c-surface);
+            border: 1px solid var(--c-line);
+            border-radius: 6px;
+            padding: 10px 14px;
+            text-align: center;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
         }
-        .q-provas-msg.is-warn { color: var(--c-danger); font-weight: 500; }
+        .q-provas-msg.is-warn {
+            color: var(--c-danger);
+            background: rgba(204,51,51,0.08);
+            border-color: rgba(204,51,51,0.3);
+            font-weight: 600;
+        }
 
         .q-status-msg {
             display: none; font-size: 11px; color: var(--c-danger);
