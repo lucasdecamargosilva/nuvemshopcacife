@@ -620,6 +620,7 @@
                             <img id="q-final-view-img">
                         </div>
                         <div id="q-result-actions-col">
+                            <div id="q-provas-restantes-result" class="q-provas-msg" style="text-align:center;margin-bottom:8px;"></div>
                             <button class="q-btn-outline" id="q-btn-back">Voltar ao Produto</button>
                             <button class="q-btn-black q-res-mobile-only" id="q-retry-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;">
                                 <i class="ph ph-camera"></i> Tentar outra foto
@@ -996,9 +997,9 @@
         });
         // ── Contador de provas restantes (debounced) ──
         let _provasDebounce;
-        const _provasMsg = document.getElementById('q-provas-restantes');
         async function _checkProvasRestantes() {
-            if (!_provasMsg) return;
+            const _els = document.querySelectorAll('.q-provas-msg');
+            if (!_els.length) return;
             const nums = phoneInput.value.replace(/\D/g, '');
             const phoneOk = (nums.length === 10 || nums.length === 11) && /^[1-9][1-9]/.test(nums) && (nums.length === 10 || nums[2] === '9');
             // Phone vazio/incompleto → manda '0' pra pegar só o ip_count.
@@ -1013,13 +1014,12 @@
                 const used = Math.max(d.phone_count || 0, d.ip_count || 0, d.count || 0);
                 const restantes = Math.max(0, 3 - used);
                 if (restantes > 0) {
-                    _provasMsg.textContent = restantes + (restantes === 1 ? ' prova restante hoje' : ' provas restantes hoje');
-                    _provasMsg.classList.remove('is-warn');
+                    const _txt = restantes + (restantes === 1 ? ' prova restante hoje' : ' provas restantes hoje');
+                    _els.forEach(el => { el.textContent = _txt; el.classList.remove('is-warn'); });
                 } else {
-                    _provasMsg.textContent = 'Limite de 3 provas atingido — pague R$1 via PIX para mais uma.';
-                    _provasMsg.classList.add('is-warn');
+                    _els.forEach(el => { el.textContent = 'Limite de 3 provas atingido — pague R$1 via PIX para mais uma.'; el.classList.add('is-warn'); });
                 }
-            } catch(_) { _provasMsg.textContent = ''; _provasMsg.classList.remove('is-warn'); }
+            } catch(_) { _els.forEach(el => { el.textContent = ''; el.classList.remove('is-warn'); }); }
         }
         phoneInput.addEventListener('input', () => {
             clearTimeout(_provasDebounce);
@@ -1248,6 +1248,7 @@
                     document.querySelector('.q-card-ia').classList.add('is-result');
                     document.getElementById('q-step-result').style.display = 'flex';
                     loadRelatedProducts();
+                    if (typeof _checkProvasRestantes === 'function') _checkProvasRestantes();
                 } else if (res.status === 401 || res.status === 403) {
                     document.getElementById('q-loading-box').style.display = 'none';
                     photoStep.style.display = 'flex';
