@@ -1359,8 +1359,12 @@
                     body: JSON.stringify({ phone })
                 });
                 const d = await r.json();
-                const used = Math.max(d.phone_count || 0, d.ip_count || 0, d.count || 0);
-                const restantes = Math.max(0, 4 - used);
+                // Teto por TELEFONE = 4. Teto por IP mais frouxo (12) pra nao limitar casa/wifi
+                // compartilhado: cada pessoa da casa tem suas 4 provas, mas 1 IP nao gera infinito.
+                var PHONE_CAP = 4, IP_CAP = (d.ip_limit || 12);
+                var restByPhone = PHONE_CAP - (d.phone_count || 0);
+                var restByIp = IP_CAP - (d.ip_count || 0);
+                const restantes = Math.max(0, Math.min(restByPhone, restByIp));
                 if (restantes > 0) {
                     const _txt = restantes + (restantes === 1 ? ' prova restante hoje' : ' provas restantes hoje');
                     _els.forEach(el => { el.textContent = _txt; el.classList.remove('is-warn'); });
