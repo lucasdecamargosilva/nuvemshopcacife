@@ -1409,17 +1409,43 @@
 
         document.getElementById('q-accept-terms').onchange = checkFields;
 
+        // Converte QUALQUER foto (inclusive HEIF/HEIC de Samsung/iPhone) pra JPEG via canvas.
+        // O backend (nó Rotate Pessoa/sharp) não lê HEIF e dropava a imagem -> "ALTA DEMANDA".
+        function toJpeg(file) {
+            return new Promise(function(resolve) {
+                try {
+                    var img = new Image();
+                    var url = URL.createObjectURL(file);
+                    img.onload = function() {
+                        URL.revokeObjectURL(url);
+                        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+                        if (!w || !h) { resolve(file); return; }
+                        var maxd = 1280, scale = Math.min(1, maxd / Math.max(w, h));
+                        var cw = Math.round(w * scale), ch = Math.round(h * scale);
+                        var c = document.createElement('canvas');
+                        c.width = cw; c.height = ch;
+                        c.getContext('2d').drawImage(img, 0, 0, cw, ch);
+                        c.toBlob(function(b) { resolve(b || file); }, 'image/jpeg', 0.92);
+                    };
+                    img.onerror = function() { URL.revokeObjectURL(url); resolve(file); };
+                    img.src = url;
+                } catch (e) { resolve(file); }
+            });
+        }
+
         function handlePhotoSelected(file) {
             if (!file) return;
-            userPhoto = file;
-            const rd = new FileReader();
-            rd.onload = ev => {
-                preImg.src = ev.target.result;
-                preImg.style.display = 'block';
-                if (facePlaceholder) facePlaceholder.style.display = 'none';
-                checkFields();
-            };
-            rd.readAsDataURL(file);
+            toJpeg(file).then(function(jpeg) {
+                userPhoto = jpeg;
+                const rd = new FileReader();
+                rd.onload = ev => {
+                    preImg.src = ev.target.result;
+                    preImg.style.display = 'block';
+                    if (facePlaceholder) facePlaceholder.style.display = 'none';
+                    checkFields();
+                };
+                rd.readAsDataURL(jpeg);
+            });
         }
 
         cameraInput.onchange  = (e) => handlePhotoSelected(e.target.files[0]);
