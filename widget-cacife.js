@@ -1370,7 +1370,7 @@
             if (sl) sl.style.display = 'flex';
             var link = document.getElementById('q-limit-wa-link');
             if (link) {
-                var msg = 'Olá! Atingi o limite de provas no provador' + (prodName ? (' e queria saber mais sobre ' + prodName.trim()) : '') + '.';
+                var msg = 'Olá! Usei o provador virtual' + (prodName ? (' e me interessei pelo ' + prodName.trim()) : '') + '.';
                 link.href = 'https://wa.me/' + CACIFE_STORE_WHATSAPP + '?text=' + encodeURIComponent(msg);
             }
         }
