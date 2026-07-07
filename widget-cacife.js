@@ -815,6 +815,7 @@
 
                     <!-- Limite de provas atingido -->
                     <div id="q-step-limit-wa">
+                        <div style="width:72px;height:72px;border-radius:50%;background:var(--c-surface);border:1px solid var(--c-line);display:flex;align-items:center;justify-content:center;align-self:center;margin:0 auto 16px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--c-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="15" r="3.2"/><circle cx="18" cy="15" r="3.2"/><path d="M9.2 15c0-1.2 1.2-2 2.8-2s2.8.8 2.8 2"/><path d="M2.8 13.5 4.6 8.8a2 2 0 0 1 1.9-1.3h1.2"/><path d="M21.2 13.5 19.4 8.8a2 2 0 0 0-1.9-1.3h-1.2"/></svg></div>
                         <h2>Seu provador virtual agora é com nossa consultora!</h2>
                         <p>Fale agora com nossa especialista e receba um teste personalizado com os modelos que mais valorizam seu rosto pelo WhatsApp!</p>
                         <a href="#" id="q-limit-wa-link" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:7px;background:#25D366;color:#fff;border-radius:10px;padding:11px 20px;font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.9c0 2.1.55 4.06 1.6 5.8L2 22l4.44-1.65a9.9 9.9 0 0 0 5.6 1.72h.01c5.46 0 9.9-4.45 9.9-9.9C21.95 6.45 17.5 2 12.04 2zm5.8 14.15c-.24.68-1.4 1.3-1.94 1.34-.5.05-1.13.07-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-2.99 0-1.42.75-2.12 1.01-2.41.27-.29.58-.36.77-.36l.55.01c.18.01.42-.07.66.5.24.59.83 2.04.9 2.18.07.15.12.32.02.51-.1.19-.15.31-.29.48-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.44.29.15.46.12.63-.07.17-.19.72-.84.91-1.13.19-.29.39-.24.66-.14.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.12.07.71-.17 1.39z"/></svg> Quero meu teste personalizado</a>
@@ -1476,6 +1477,7 @@
             if (link) {
                 var msg = 'Olá! Usei o provador virtual' + (prodName ? (' e me interessei pelo ' + prodName.trim()) : '') + '.';
                 link.href = 'https://wa.me/' + CACIFE_STORE_WHATSAPP + '?text=' + encodeURIComponent(msg);
+                link.addEventListener('click', function () { try { fetch('https://n8n.segredosdodrop.com/webhook/pl-provador-limit-wa-click', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: (document.getElementById('q-phone') || document.querySelector('#q-modal-ia input[type=tel], input[type=tel]') || {}).value || '', origin: location.origin, produto: (prodName || '').trim() }) }).catch(function () {}); } catch (e) {} });
             }
         }
 
