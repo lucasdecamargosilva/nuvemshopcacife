@@ -1352,36 +1352,33 @@
             section.style.display = 'block';
         }
 
-        // ── Barra de progresso simulada (não há evento real de progresso do backend;
-        // a barra desacelera perto de 92% e só fecha em 100% quando a resposta chega) ──
+        // ── Barra de progresso simulada (não há evento real de progresso do backend).
+        // Desacelera perto de 92% e se auto-encerra sozinha quando a tela de loading
+        // for escondida (sucesso, erro ou limite) — não precisa de hook em cada saída. ──
         var _qProgressTimer = null;
         function startLoadingProgress() {
-            stopLoadingProgress(false);
-            var bar = document.querySelector('#q-loading-box .q-loading-bar > div');
-            if (!bar) return;
+            if (_qProgressTimer) { clearInterval(_qProgressTimer); _qProgressTimer = null; }
+            var lb = document.getElementById('q-loading-box');
+            var bar = lb ? lb.querySelector('.q-loading-bar > div') : null;
+            if (!lb || !bar) return;
             bar.style.transition = 'none';
             bar.style.transform = 'scaleX(0)';
             void bar.offsetWidth;
             bar.style.transition = 'transform 0.3s ease-out';
             var progress = 0;
             _qProgressTimer = setInterval(function () {
+                if (lb.style.display !== 'flex') { clearInterval(_qProgressTimer); _qProgressTimer = null; return; }
                 var remaining = 92 - progress;
                 progress += Math.max(remaining * 0.06, 0.15);
                 if (progress > 92) progress = 92;
                 bar.style.transform = 'scaleX(' + (progress / 100) + ')';
             }, 200);
         }
-        function stopLoadingProgress(complete) {
-            if (_qProgressTimer) { clearInterval(_qProgressTimer); _qProgressTimer = null; }
-            var bar = document.querySelector('#q-loading-box .q-loading-bar > div');
-            if (bar && complete) bar.style.transform = 'scaleX(1)';
-        }
 
         function showError() {
             var lb = document.getElementById('q-loading-box');
             var su = photoStep;
             var se = document.getElementById('q-step-error');
-            stopLoadingProgress(false);
             if (lb) lb.style.display = 'none';
             if (su) su.style.display = 'none';
             if (se) se.style.display = 'flex';
@@ -1393,7 +1390,6 @@
             var lb = document.getElementById('q-loading-box');
             var su = photoStep;
             var sl = document.getElementById('q-step-limit-wa');
-            stopLoadingProgress(false);
             if (lb) lb.style.display = 'none';
             if (su) su.style.display = 'none';
             if (sl) sl.style.display = 'flex';
@@ -1689,7 +1685,6 @@
                     // Guard: re-valida telefone antes de submeter (evita whatsapp vazio)
                     const _finalNums = (phoneInput.value || '').replace(/\D/g, '');
                     if (typeof isValidBRPhone === 'function' && !isValidBRPhone(_finalNums)) {
-                        stopLoadingProgress(false);
                         try { document.getElementById('q-loading-box').style.display = 'none'; } catch(_) {}
                         try { uploadStep.style.display = 'block'; } catch(_) {}
                         try { genBtn.disabled = false; } catch(_) {}
@@ -1759,7 +1754,6 @@ const fd = new FormData();
                     if (contentType.includes("application/json")) {
                         const data = await res.json();
                         if (data.error) {
-                            stopLoadingProgress(false);
                             document.getElementById('q-loading-box').style.display = 'none';
                             photoStep.style.display = 'flex';
                             if (data.error === "Chave invalida, vencida ou inativa." || data.error.includes("vencida ou inativa")) {
@@ -1773,7 +1767,6 @@ const fd = new FormData();
 
                     if (res.ok) {
                         const blob = await res.blob();
-                        stopLoadingProgress(true);
                         document.getElementById('q-loading-box').style.display = 'none';
                         document.getElementById('q-final-view-img').src = URL.createObjectURL(blob);
                         document.querySelector('.q-card-ia').classList.add('is-result');
@@ -1782,13 +1775,11 @@ const fd = new FormData();
                         populateBuyCta();
                         if (typeof _checkProvasRestantes === 'function') _checkProvasRestantes();
                     } else if (res.status === 401 || res.status === 403) {
-                        stopLoadingProgress(false);
                         document.getElementById('q-loading-box').style.display = 'none';
                         photoStep.style.display = 'flex';
                         showError();
                     } else { throw new Error(); }
                 } catch (e) {
-                    stopLoadingProgress(false);
                     document.getElementById('q-loading-box').style.display = 'none';
                     photoStep.style.display = 'flex';
                     showError();
