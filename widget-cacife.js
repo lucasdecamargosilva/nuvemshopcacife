@@ -765,6 +765,10 @@
                         </div>
                         <div id="q-pix-status-msg" class="q-pix-status q-pix-waiting">Aguardando pagamento...</div>
                         <p class="q-pix-cancel" id="q-pix-cancel">Cancelar</p>
+                        <div id="q-pix-wa-fallback" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--c-line);text-align:center;">
+                            <p style="font-size:11px;color:var(--c-muted);margin:0 0 6px;">Prefere atendimento personalizado?</p>
+                            <a href="#" id="q-pix-wa-link" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;color:var(--c-muted);font-family:inherit;font-size:12px;font-weight:600;text-decoration:underline;"><svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.9c0 2.1.55 4.06 1.6 5.8L2 22l4.44-1.65a9.9 9.9 0 0 0 5.6 1.72h.01c5.46 0 9.9-4.45 9.9-9.9C21.95 6.45 17.5 2 12.04 2zm5.8 14.15c-.24.68-1.4 1.3-1.94 1.34-.5.05-1.13.07-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.8-4.17-4.94-4.36-.15-.19-1.18-1.57-1.18-2.99 0-1.42.75-2.12 1.01-2.41.27-.29.58-.36.77-.36l.55.01c.18.01.42-.07.66.5.24.59.83 2.04.9 2.18.07.15.12.32.02.51-.1.19-.15.31-.29.48-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.44.29.15.46.12.63-.07.17-.19.72-.84.91-1.13.19-.29.39-.24.66-.14.27.1 1.7.8 1.99.95.29.15.48.22.55.34.07.12.07.71-.17 1.39z"/></svg> Falar com nossa consultora</a>
+                        </div>
                     </div>
 
                     <!-- Loading -->
@@ -1623,6 +1627,33 @@
             document.getElementById('q-step-pix').style.display = 'block';
             document.getElementById('q-pix-status-msg').textContent = 'Aguardando pagamento...';
             document.getElementById('q-pix-status-msg').className = 'q-pix-status q-pix-waiting';
+            wirePixWaFallback();
+        }
+
+        // Link discreto pra consultora na tela de PIX: quem nao quer pagar o R$1
+        // ainda vira lead da loja em vez de simplesmente fechar o modal.
+        let _waFallbackWired = false;
+        function wirePixWaFallback() {
+            const link = document.getElementById('q-pix-wa-link');
+            if (!link) return;
+            const msg = 'Olá! Usei o provador virtual' + (prodName ? (' e me interessei pelo ' + prodName.trim()) : '') + '.';
+            link.href = 'https://wa.me/' + CACIFE_STORE_WHATSAPP + '?text=' + encodeURIComponent(msg);
+            if (_waFallbackWired) return;
+            _waFallbackWired = true;
+            link.addEventListener('click', function () {
+                try {
+                    fetch('https://n8n.segredosdodrop.com/webhook/pl-provador-limit-wa-click', {
+                        method: 'POST', keepalive: true,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            phone: (phoneInput || {}).value || '',
+                            origin: location.origin,
+                            produto: (prodName || '').trim(),
+                            source: 'pix_screen'
+                        })
+                    }).catch(function () {});
+                } catch (e) {}
+            });
         }
 
         function hidePixScreen() {
@@ -1668,14 +1699,6 @@
         }
 
         async function createPixAndPoll() {
-            /* PIX_DESATIVADO: prova extra via PIX removida - mostra so mensagem de volte amanha. */
-            try {
-                var _ph = document.getElementById('q-step-photo'); if (_ph) _ph.style.display = 'none';
-                var _lb = document.getElementById('q-loading-box'); if (_lb) _lb.style.display = 'none';
-                var _pix = document.getElementById('q-step-pix');
-                if (_pix) { _pix.style.display = 'block'; _pix.innerHTML = '<h2>Limite de hoje atingido</h2><p class="q-pix-subtitle" style="text-align:center;">Voc&ecirc; j&aacute; usou suas provas de hoje.<br>Volte amanh&atilde; para experimentar mais &oacute;culos! &#128522;</p>'; }
-            } catch (e) {}
-            return;
             showPixScreen();
             const phone = '55' + phoneInput.value.replace(/\D/g, '');
             try {
@@ -1933,10 +1956,11 @@ const fd = new FormData();
                 });
                 const data = await resp.json();
                 if (data.limited) {
-                    // limite atingido: esconde a animacao e manda falar com a loja no WhatsApp
+                    // limite atingido: oferece prova extra por R$1 via PIX
+                    // (a tela de PIX tem link discreto pra consultora pra quem nao quiser pagar)
                     try { document.getElementById('q-loading-box').style.display = 'none'; } catch (_) {}
                     genBtn.disabled = false;
-                    showLimitWhatsApp();
+                    createPixAndPoll();
                     return;
                 }
             } catch (_) {
