@@ -1703,16 +1703,13 @@
             } catch(_) {}
         }
 
-        async function createPixAndPoll() {
-            try{(window.__D=window.__D||[]).push('enter')}catch(_){}
+        async function createPixAndPoll(_isRetry) {
             showPixScreen();
-            try{window.__D.push('shown:'+getComputedStyle(document.getElementById('q-step-pix')).display)}catch(_){}
             const phone = '55' + phoneInput.value.replace(/\D/g, '');
-            try{window.__D.push('phone:'+phone)}catch(_){}
             try {
                 let pix;
-                const pending = _pixLoadPending(phone);
-                try{window.__D.push('pending:'+(pending?'Y':'N'))}catch(_){}
+                // Numa retry, ignora o pendente (foi ele que deu QR quebrado).
+                const pending = _isRetry ? null : _pixLoadPending(phone);
                 // Só reaproveita pendente COMPLETO (com QR base64). Um pendente parcial
                 // (base64 vazio, salvo de uma resposta que falhou no meio) geraria
                 // 'data:image/png;base64,undefined' = QR quebrado. Nesse caso, refaz.
@@ -1721,21 +1718,25 @@
                     pix = { payment_id: pending.payment_id, qr_code: pending.qr_code, qr_code_base64: pending.qr_code_base64 };
                 } else {
                     if (pending) _pixClearPending(phone); // limpa o pendente quebrado
-                    try{window.__D.push('before-fetch')}catch(_){}
                     const resp = await fetch(WEBHOOK_PIX, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: 'cliente@provoulevou.com.br', phone, loja: 'cacife', origin: location.origin })
                     });
-                    try{window.__D.push('fetch-status:'+resp.status)}catch(_){}
                     pix = await resp.json();
-                    try{window.__D.push('b64:'+((pix.qr_code_base64||'').length))}catch(_){}
                     // Exige o base64 também — sem ele o QR não renderiza.
                     if (!pix.payment_id || !pix.qr_code || !pix.qr_code_base64) throw new Error('PIX inválido');
                     _pixSavePending(phone, pix.payment_id, pix.qr_code, pix.qr_code_base64);
                 }
 
-                document.getElementById('q-pix-qr-img').src = 'data:image/png;base64,' + pix.qr_code_base64;
+                const _qrImg = document.getElementById('q-pix-qr-img');
+                // Auto-recuperação: se o QR não carregar (base64 corrompido/pendente ruim),
+                // limpa e refaz UMA vez, em vez de deixar o QR quebrado na tela.
+                _qrImg.onerror = function () {
+                    _qrImg.onerror = null;
+                    if (!_isRetry) { _pixClearPending(phone); stopPixPolling(); createPixAndPoll(true); }
+                };
+                _qrImg.src = 'data:image/png;base64,' + pix.qr_code_base64;
                 document.getElementById('q-pix-code').value = pix.qr_code;
 
                 // Polling a cada 3s por até 5min
@@ -1760,7 +1761,6 @@
                     } catch (_) {}
                 }, 3000);
             } catch (e) {
-                try{window.__D.push('CATCH:'+(e&&e.message||e))}catch(_){}
                 hidePixScreen();
                 uploadStep.style.display = 'block';
                 showError();
