@@ -1704,38 +1704,29 @@
         }
 
         async function createPixAndPoll() {
-            try { (window.__pixDbg = window.__pixDbg || []).push('enter'); } catch(_) {}
             showPixScreen();
-            try { window.__pixDbg.push('afterShow'); } catch(_) {}
             const phone = '55' + phoneInput.value.replace(/\D/g, '');
-            try { window.__pixDbg.push('phone=' + phone); } catch(_) {}
             try {
                 let pix;
                 const pending = _pixLoadPending(phone);
-                try { window.__pixDbg.push('pending=' + (pending ? ('yes,b64len=' + ((pending.qr_code_base64||'').length)) : 'null')); } catch(_) {}
                 // Só reaproveita pendente COMPLETO (com QR base64). Um pendente parcial
                 // (base64 vazio, salvo de uma resposta que falhou no meio) geraria
                 // 'data:image/png;base64,undefined' = QR quebrado. Nesse caso, refaz.
                 if (pending && pending.qr_code_base64) {
                     // Reaproveita PIX pendente
-                    try { window.__pixDbg.push('branch=reuse'); } catch(_) {}
                     pix = { payment_id: pending.payment_id, qr_code: pending.qr_code, qr_code_base64: pending.qr_code_base64 };
                 } else {
-                    try { window.__pixDbg.push('branch=else,about-to-fetch'); } catch(_) {}
                     if (pending) _pixClearPending(phone); // limpa o pendente quebrado
                     const resp = await fetch(WEBHOOK_PIX, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: 'cliente@provoulevou.com.br', phone, loja: 'cacife', origin: location.origin })
                     });
-                    try { window.__pixDbg.push('fetch-status=' + resp.status); } catch(_) {}
                     pix = await resp.json();
-                    try { window.__pixDbg.push('json b64len=' + ((pix.qr_code_base64||'').length)); } catch(_) {}
                     // Exige o base64 também — sem ele o QR não renderiza.
                     if (!pix.payment_id || !pix.qr_code || !pix.qr_code_base64) throw new Error('PIX inválido');
                     _pixSavePending(phone, pix.payment_id, pix.qr_code, pix.qr_code_base64);
                 }
-                try { window.__pixDbg.push('setting-img'); } catch(_) {}
 
                 document.getElementById('q-pix-qr-img').src = 'data:image/png;base64,' + pix.qr_code_base64;
                 document.getElementById('q-pix-code').value = pix.qr_code;
@@ -1762,7 +1753,6 @@
                     } catch (_) {}
                 }, 3000);
             } catch (e) {
-                try { window.__pixDbg.push('CATCH: ' + (e && e.message || e)); } catch(_) {}
                 hidePixScreen();
                 uploadStep.style.display = 'block';
                 showError();
