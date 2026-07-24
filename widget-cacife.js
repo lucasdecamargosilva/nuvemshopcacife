@@ -1628,7 +1628,8 @@
             document.getElementById('q-step-pix').style.display = 'block';
             document.getElementById('q-pix-status-msg').textContent = 'Aguardando pagamento...';
             document.getElementById('q-pix-status-msg').className = 'q-pix-status q-pix-waiting';
-            wirePixWaFallback();
+            // Nunca deixar um detalhe do fallback (link consultora etc.) abortar o fluxo do PIX.
+            try { wirePixWaFallback(); } catch (_) {}
         }
 
         // Link discreto pra consultora na tela de PIX: quem nao quer pagar o R$1
