@@ -1709,17 +1709,22 @@
             try {
                 let pix;
                 const pending = _pixLoadPending(phone);
-                if (pending) {
+                // Só reaproveita pendente COMPLETO (com QR base64). Um pendente parcial
+                // (base64 vazio, salvo de uma resposta que falhou no meio) geraria
+                // 'data:image/png;base64,undefined' = QR quebrado. Nesse caso, refaz.
+                if (pending && pending.qr_code_base64) {
                     // Reaproveita PIX pendente
                     pix = { payment_id: pending.payment_id, qr_code: pending.qr_code, qr_code_base64: pending.qr_code_base64 };
                 } else {
+                    if (pending) _pixClearPending(phone); // limpa o pendente quebrado
                     const resp = await fetch(WEBHOOK_PIX, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: 'cliente@provoulevou.com.br', phone, loja: 'cacife', origin: location.origin })
                     });
                     pix = await resp.json();
-                    if (!pix.payment_id || !pix.qr_code) throw new Error('PIX inválido');
+                    // Exige o base64 também — sem ele o QR não renderiza.
+                    if (!pix.payment_id || !pix.qr_code || !pix.qr_code_base64) throw new Error('PIX inválido');
                     _pixSavePending(phone, pix.payment_id, pix.qr_code, pix.qr_code_base64);
                 }
 
