@@ -1087,7 +1087,7 @@
 
         const modal = document.getElementById('q-modal-ia');
 
-        // ── Botão inline acima do botão de compra ──
+        // ── Botão inline abaixo do botão de compra ──
         const inlineBtn = document.createElement('button');
         inlineBtn.className = 'q-btn-inline-provador';
         inlineBtn.type = 'button';
@@ -1122,10 +1122,10 @@
             openModal();
         });
 
-        // Posiciona acima do botão de compra
+        // Mantém "Comprar" como a primeira ação e o provador logo abaixo.
         const buyBtn = document.querySelector('.js-addtocart, .btn-add-to-cart, [data-component="product.add-to-cart"]');
         if (buyBtn) {
-            buyBtn.parentNode.insertBefore(inlineBtn, buyBtn);
+            buyBtn.parentNode.insertBefore(inlineBtn, buyBtn.nextSibling);
         } else {
             const variantsContainer = document.querySelector('.js-product-variants');
             if (variantsContainer) {
