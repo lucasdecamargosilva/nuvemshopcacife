@@ -2141,7 +2141,7 @@ const fd = new FormData();
     if (pageProductId !== '121588376' && path !== '/produtos/armacao-para-grau-orus-preto') return;
     if (document.querySelector('script[data-pl-cacife-lentes-piloto]')) return;
     var script = document.createElement('script');
-    script.src = 'https://lucasdecamargosilva.github.io/nuvemshopcacife/lentes-cacife-piloto.js?v=20260909-3';
+    script.src = 'https://lucasdecamargosilva.github.io/nuvemshopcacife/lentes-cacife-piloto.js?v=20260909-4';
     script.async = true;
     script.dataset.plCacifeLentesPiloto = '1';
     document.head.appendChild(script);

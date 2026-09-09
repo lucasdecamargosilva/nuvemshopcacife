@@ -98,7 +98,7 @@
     var css = document.createElement('style');
     css.id='plc-lens-style';
     css.textContent='\
-.plc-lens-btn{width:100%;margin-top:10px;padding:14px 16px;border:1px solid #111;background:#fff;color:#111;font:700 11px/1.2 "Work Sans",Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-sizing:border-box;transition:background .2s,color .2s}.plc-lens-btn:hover{background:#111;color:#fff}\
+.plc-lens-btn{width:100%;margin-top:10px;padding:14px 16px;border:1px solid #111;background:#111;color:#fff;font:700 11px/1.2 "Work Sans",Arial,sans-serif;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;box-sizing:border-box;transition:opacity .2s}.plc-lens-btn:hover{opacity:.86}\
 .plc-overlay{position:fixed;inset:0;z-index:2147483646;background:rgba(240,238,235,.96);display:none;align-items:center;justify-content:center;box-sizing:border-box;font-family:inherit}.plc-overlay *{box-sizing:border-box}\
 .plc-card{width:440px;max-width:92vw;max-height:96vh;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 18px 60px rgba(0,0,0,.18);color:#1a1a1a;position:relative;display:flex;flex-direction:column;animation:plc-in .35s cubic-bezier(.22,1,.36,1)}@keyframes plc-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}\
 .plc-head{padding:28px 28px 22px;border-bottom:1px solid #dedede;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;flex-shrink:0}.plc-head b{display:block;font-size:22px;line-height:1;font-weight:400;letter-spacing:4px;text-transform:uppercase}.plc-head img{height:52px;width:auto;max-width:150px;object-fit:contain;filter:brightness(0)}\
