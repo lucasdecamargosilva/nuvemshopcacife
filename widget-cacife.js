@@ -2132,17 +2132,14 @@ const fd = new FormData();
 
 })();
 
-/* Fluxo de lentes — piloto restrito ao produto Orus Preto.
-   Mantido em arquivo separado para que a validação não altere os demais produtos. */
+/* Fluxo de lentes disponível em todas as páginas de produto. */
 (function () {
     var path = String(window.location.pathname || '').replace(/\/+$/, '').toLowerCase();
-    var pageProductId = '';
-    try { pageProductId = String(window.LS && window.LS.product && window.LS.product.id || ''); } catch (_) { }
-    if (pageProductId !== '121588376' && path !== '/produtos/armacao-para-grau-orus-preto') return;
-    if (document.querySelector('script[data-pl-cacife-lentes-piloto]')) return;
+    if (!/^\/produtos\/[^/]+$/.test(path)) return;
+    if (document.querySelector('script[data-pl-cacife-lentes]')) return;
     var script = document.createElement('script');
-    script.src = 'https://lucasdecamargosilva.github.io/nuvemshopcacife/lentes-cacife-piloto.js?v=20260909-8';
+    script.src = 'https://lucasdecamargosilva.github.io/nuvemshopcacife/lentes-cacife-piloto.js?v=20260909-10';
     script.async = true;
-    script.dataset.plCacifeLentesPiloto = '1';
+    script.dataset.plCacifeLentes = '1';
     document.head.appendChild(script);
 })();
