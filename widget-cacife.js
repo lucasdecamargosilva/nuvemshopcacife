@@ -2132,13 +2132,23 @@ const fd = new FormData();
 
 })();
 
-/* Fluxo de lentes disponível em todas as páginas de produto. */
+/* Fluxo de lentes disponível somente nas armações de grau. */
 (function () {
     var path = String(window.location.pathname || '').replace(/\/+$/, '').toLowerCase();
     if (!/^\/produtos\/[^/]+$/.test(path)) return;
+    var productForm = document.querySelector('#product_form');
+    var productName = '';
+    try { productName = String(window.LS && window.LS.product && window.LS.product.name || ''); } catch (_) { }
+    if (!productName) productName = String((document.querySelector('h1.product-name, h1.product__title, h1') || {}).textContent || '');
+    var normalizedName = productName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    var hasPrescriptionOptions = productForm && [].slice.call(productForm.querySelectorAll('option')).some(function (option) {
+        return /lente(s)? de grau|somente armacao|par de lentes com/.test(String(option.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+    });
+    var isPrescriptionFrame = !!hasPrescriptionOptions || /armacao.*grau|oculos.*grau/.test(normalizedName);
+    if (!isPrescriptionFrame || /^par de lente/.test(normalizedName)) return;
     if (document.querySelector('script[data-pl-cacife-lentes]')) return;
     var script = document.createElement('script');
-    script.src = 'https://lucasdecamargosilva.github.io/nuvemshopcacife/lentes-cacife-piloto.js?v=20260909-10';
+    script.src = 'https://lucasdecamargosilva.github.io/nuvemshopcacife/lentes-cacife-piloto.js?v=20260909-11';
     script.async = true;
     script.dataset.plCacifeLentes = '1';
     document.head.appendChild(script);

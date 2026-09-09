@@ -4,6 +4,16 @@
     if (window.__PL_CACIFE_LENS_FLOW__) return;
     var path = String(location.pathname || '').replace(/\/+$/, '').toLowerCase();
     if (!/^\/produtos\/[^/]+$/.test(path)) return;
+    var productForm = document.querySelector('#product_form');
+    var productName = '';
+    try { productName = String(window.LS && window.LS.product && window.LS.product.name || ''); } catch (_) { }
+    if (!productName) productName = String((document.querySelector('h1.product-name, h1.product__title, h1') || {}).textContent || '');
+    var normalizedName = productName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    var hasPrescriptionOptions = productForm && [].slice.call(productForm.querySelectorAll('option')).some(function (option) {
+        return /lente(s)? de grau|somente armacao|par de lentes com/.test(String(option.textContent || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+    });
+    var isPrescriptionFrame = !!hasPrescriptionOptions || /armacao.*grau|oculos.*grau/.test(normalizedName);
+    if (!isPrescriptionFrame || /^par de lente/.test(normalizedName)) return;
     window.__PL_CACIFE_LENS_FLOW__ = true;
 
     var WEBHOOK_RECEITA = 'https://n8n.segredosdodrop.com/webhook/pl-ler-receita';
