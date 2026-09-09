@@ -165,6 +165,6 @@
     $('#plc-buy-both').addEventListener('click',function(){buyBoth(this);});
     $('#plc-buy-frame').addEventListener('click',function(){if(!validPhone()||!lockButton(this))return;track('so_armacao',{visao:state.visao});buyFrame();});
 
-    function insertButtons(){var form=getProductForm(),buy=form&&form.querySelector('.js-addtocart,.btn-add-to-cart,[data-component="product.add-to-cart"]');if(!buy||form.querySelector('.plc-lens-btn'))return !!buy;var b=document.createElement('button');b.type='button';b.className='plc-lens-btn';b.textContent='Escolher lentes e comprar';b.addEventListener('click',function(e){e.preventDefault();open();});var anchor=form.querySelector('.q-btn-inline-provador')||buy;anchor.parentNode.insertBefore(b,anchor.nextSibling);return true;}
+    function insertButtons(){var form=getProductForm(),buy=form&&form.querySelector('.js-addtocart,.btn-add-to-cart,[data-component="product.add-to-cart"]');if(!buy||form.querySelector('.plc-lens-btn'))return !!buy;var b=document.createElement('button');b.type='button';b.className='plc-lens-btn';b.textContent='Escolher lentes e comprar';b.addEventListener('click',function(e){e.preventDefault();open();});buy.parentNode.insertBefore(b,buy.nextSibling);return true;}
     if(!insertButtons()){var attempts=0,timer=setInterval(function(){if(insertButtons()||++attempts>30)clearInterval(timer);},300);}
 })();

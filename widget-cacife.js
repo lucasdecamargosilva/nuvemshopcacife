@@ -193,7 +193,7 @@
             border: 1.5px solid var(--c-ink); border-radius: 0;
             font-family: 'Work Sans', var(--font-body), sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
             cursor: pointer; transition: background 0.25s, color 0.25s;
-            margin-top: 10px; margin-bottom: 0; box-sizing: border-box;
+            margin-top: 0; margin-bottom: 10px; box-sizing: border-box;
         }
         .q-btn-inline-provador:hover { background: var(--c-ink); color: #fff; }
         .q-btn-inline-provador svg { width: 14px; height: 14px; flex-shrink: 0; }
@@ -1087,7 +1087,7 @@
 
         const modal = document.getElementById('q-modal-ia');
 
-        // ── Botão inline abaixo do botão de compra ──
+        // ── Botão inline acima do botão de compra ──
         const inlineBtn = document.createElement('button');
         inlineBtn.className = 'q-btn-inline-provador';
         inlineBtn.type = 'button';
@@ -1122,10 +1122,10 @@
             openModal();
         });
 
-        // Mantém "Comprar" como a primeira ação e o provador logo abaixo.
+        // Mantém o provador imediatamente acima de "Comprar".
         const buyBtn = document.querySelector('.js-addtocart, .btn-add-to-cart, [data-component="product.add-to-cart"]');
         if (buyBtn) {
-            buyBtn.parentNode.insertBefore(inlineBtn, buyBtn.nextSibling);
+            buyBtn.parentNode.insertBefore(inlineBtn, buyBtn);
         } else {
             const variantsContainer = document.querySelector('.js-product-variants');
             if (variantsContainer) {
@@ -2141,7 +2141,7 @@ const fd = new FormData();
     if (pageProductId !== '121588376' && path !== '/produtos/armacao-para-grau-orus-preto') return;
     if (document.querySelector('script[data-pl-cacife-lentes-piloto]')) return;
     var script = document.createElement('script');
-    script.src = 'https://lucasdecamargosilva.github.io/nuvemshopcacife/lentes-cacife-piloto.js?v=20260909-6';
+    script.src = 'https://lucasdecamargosilva.github.io/nuvemshopcacife/lentes-cacife-piloto.js?v=20260909-7';
     script.async = true;
     script.dataset.plCacifeLentesPiloto = '1';
     document.head.appendChild(script);
