@@ -11,6 +11,7 @@
     function trocaHref(a) {
         var h = a.getAttribute('href') || '';
         if (h.replace(/\D/g, '').indexOf(OLD_DIG) === -1) return;
+        if (/^tel:/i.test(h)) { a.setAttribute('href', 'tel:+55' + NEW_DIG); return; }
         a.setAttribute('href', h.replace(/(\d[\d\s().+-]*)/g, function (m) {
             var d = m.replace(/\D/g, '');
             if (d.indexOf(OLD_DIG) === -1) return m;
