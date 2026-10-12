@@ -140,6 +140,7 @@
         });
     }
     function pendente(antes) {
+        if (window.__PLLC_SEM_EXTRAS) return null;
         var l = extras();
         for (var i = 0; i < l.length; i++) if ((l[i].antes_de || 'resultado') === antes && !Object.prototype.hasOwnProperty.call(respondidas, l[i].id)) return l[i];
         return null;
@@ -167,6 +168,7 @@
         if (!obrig) h += q ? '<a class="q-voltar" data-pllc-x-pula style="cursor:pointer">pular</a>' : '<button type="button" class="plc-back" data-pllc-x-pula>pular</button>';
         h += '<div data-pllc-x-erro style="display:none;color:#c0392b;font-size:13px;margin-top:8px">' + (texto ? 'Preencha para continuar.' : 'Escolha pelo menos uma opção.') + '</div>';
         el.innerHTML = h;
+        try { el.setAttribute('data-pllc-xid', String(((cfgAtual() || {}).etapas_extra || []).indexOf(x))); } catch (e) {}
         if (!document.getElementById('pllc-x-css')) {
             var st = document.createElement('style'); st.id = 'pllc-x-css';
             st.textContent = '[data-pllc-x-op][aria-pressed="true"]{outline:2px solid currentColor!important;outline-offset:-2px}';
@@ -203,6 +205,90 @@
             out.push(s);
         });
         return out;
+    }
+    /* ---- Prévia ao vivo do painel (13/10/2026): só dentro da prévia "Configurar fluxo" (iframe do painel).
+       Recebe a config sem recarregar (pl-lentes-cfg-live), pula pra etapa escolhida no mapa (pl-lentes-ir) e deixa
+       editar os textos clicando neles (manda pl-lentes-edit pro painel). Na loja de verdade nada disso liga. ---- */
+    var _pv = null, _pvEditar = true;
+    function cfgAtual() { return atual || window.__PL_LENTES_CFG_OVERRIDE || null; }
+    function _pvValor(ref) {
+        var p = String(ref).split(':'), c = cfgAtual() || {};
+        try {
+            if (p[0] === 't') return (c.textos[+p[1]] || {}).valor;
+            if (p[0] === 'n') return (c.necessidades[+p[1]] || {})[p[2]];
+            if (p[0] === 'x') return (c.etapas_extra[+p[1]] || {})[p[2]];
+            if (p[0] === 'xo') return ((c.etapas_extra[+p[1]] || {}).opcoes[+p[2]] || {})[p[3]];
+        } catch (e) {}
+        return '';
+    }
+    function _pvGrava(ref, v) {
+        var p = String(ref).split(':'), c = cfgAtual() || {};
+        try {
+            if (p[0] === 't') c.textos[+p[1]].valor = v;
+            else if (p[0] === 'n') c.necessidades[+p[1]][p[2]] = v;
+            else if (p[0] === 'x') c.etapas_extra[+p[1]][p[2]] = v;
+            else if (p[0] === 'xo') c.etapas_extra[+p[1]].opcoes[+p[2]][p[3]] = v;
+        } catch (e) {}
+    }
+    function _pvMarca(el, ref) { if (!el) return; el.setAttribute('data-pllc-ref', ref); el.setAttribute('contenteditable', 'true'); el.setAttribute('spellcheck', 'false'); }
+    function marcaEditaveis() {
+        if (!_pv) return;
+        [].forEach.call(document.querySelectorAll('[data-pllc-ref]'), function (el) { if (el === document.activeElement) return; el.removeAttribute('contenteditable'); el.removeAttribute('data-pllc-ref'); });
+        if (!_pvEditar) return;
+        var c = cfgAtual() || {};
+        (c.textos || []).forEach(function (t, i) {
+            if (!t || !t.sel || !/^(#q-step-|\.plc-step\[data-step=)/.test(String(t.sel))) return;
+            try { [].forEach.call(document.querySelectorAll(t.sel), function (el) { _pvMarca(el, 't:' + i); }); } catch (e) {}
+        });
+        var nc = _pv.nec;
+        if (nc) (c.necessidades || []).forEach(function (n, i) {
+            [].forEach.call(document.querySelectorAll('[' + nc.attr + '="' + n.key + '"]'), function (b) { _pvMarca(b.querySelector(nc.t), 'n:' + i + ':titulo'); _pvMarca(b.querySelector(nc.s), 'n:' + i + ':desc'); });
+        });
+        [].forEach.call(document.querySelectorAll('[data-pllc-xid]'), function (el) {
+            var i = el.getAttribute('data-pllc-xid');
+            _pvMarca(el.querySelector('.q-section-label,.plc-label'), 'x:' + i + ':titulo');
+            _pvMarca(el.querySelector('.q-tip-box span,.plc-note'), 'x:' + i + ':dica');
+            [].forEach.call(el.querySelectorAll('[data-pllc-x-op]'), function (b) {
+                var j = b.getAttribute('data-pllc-x-op');
+                _pvMarca(b.querySelector('.q-opt-t,b'), 'xo:' + i + ':' + j + ':titulo');
+                _pvMarca(b.querySelector('.q-opt-s,small'), 'xo:' + i + ':' + j + ':desc');
+            });
+        });
+    }
+    function previa(api) {
+        if (_pv || !window.PL_LENTES_PREVIEW || window.parent === window) return;
+        _pv = api;
+        var st = document.createElement('style');
+        st.textContent = '[data-pllc-ref]{cursor:text!important;border-radius:4px;outline:none;transition:box-shadow .12s}' +
+            '[data-pllc-ref]:empty::before{content:"Clique e escreva…";color:#a8a2b2;font-style:italic;text-transform:none;letter-spacing:0}[data-pllc-ref]:hover{box-shadow:0 0 0 2px rgba(99,14,212,.35)}[data-pllc-ref]:focus{box-shadow:0 0 0 2px #630ed4;background:rgba(255,255,255,.95)}';
+        (document.head || document.documentElement).appendChild(st);
+        window.addEventListener('message', function (e) {
+            var d = e.data || {};
+            if (d.type === 'pl-lentes-cfg-live' && d.config) {
+                window.__PL_LENTES_CFG_OVERRIDE = d.config; atual = d.config;
+                try { api.reaplica(d.config); } catch (x) {}
+                try { if (api.atualizaTela) api.atualizaTela(); } catch (x) {}
+                marcaEditaveis();
+            } else if (d.type === 'pl-lentes-ir') { try { api.ir(String(d.etapa || '')); } catch (x) {} marcaEditaveis(); }
+            else if (d.type === 'pl-lentes-modo') { _pvEditar = !!d.editar; marcaEditaveis(); }
+        });
+        document.addEventListener('input', function (e) {
+            var el = e.target && e.target.closest && e.target.closest('[data-pllc-ref]'); if (!el) return;
+            var v = (el.textContent || '').replace(/\s+/g, ' ').trim(), ref = el.getAttribute('data-pllc-ref');
+            _pvGrava(ref, v);
+            window.parent.postMessage({ type: 'pl-lentes-edit', ref: ref, valor: v }, '*');
+        });
+        document.addEventListener('focusin', function (e) { var el = e.target && e.target.closest && e.target.closest('[data-pllc-ref]'); if (el) el.textContent = String(_pvValor(el.getAttribute('data-pllc-ref')) || ''); });
+        document.addEventListener('focusout', function (e) { var el = e.target && e.target.closest && e.target.closest('[data-pllc-ref]'); if (el) el.innerHTML = fmt(_pvValor(el.getAttribute('data-pllc-ref')) || ''); });
+        document.addEventListener('keydown', function (e) { var el = e.target && e.target.closest && e.target.closest('[data-pllc-ref]'); if (el && e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+        document.addEventListener('paste', function (e) { var el = e.target && e.target.closest && e.target.closest('[data-pllc-ref]'); if (!el) return; e.preventDefault(); document.execCommand('insertText', false, ((e.clipboardData || window.clipboardData).getData('text/plain') || '').replace(/\s*\n\s*/g, ' ')); });
+        // no modo "editar", clicar num texto edita (não aciona a opção)
+        ['click', 'mouseup', 'touchend'].forEach(function (tp) {
+            window.addEventListener(tp, function (e) { if (_pvEditar && e.target && e.target.closest && e.target.closest('[data-pllc-ref]')) { e.stopPropagation(); if (tp === 'click') e.preventDefault(); } }, true);
+        });
+        new MutationObserver(function () { clearTimeout(_pv._t); _pv._t = setTimeout(marcaEditaveis, 120); }).observe(document.body, { childList: true, subtree: true });
+        setTimeout(marcaEditaveis, 400);
+        window.parent.postMessage({ type: 'pl-lentes-live-ok' }, '*');
     }
         function cor(v) { return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(String(v || '').trim()) ? String(v).trim() : null; }
         // Cores: modelo(t) devolve o CSS da loja com as cores já resolvidas.
@@ -301,7 +387,7 @@
             w.__pllc = true;
             return w;
         }
-        return { carregar: carregar, catalogo: catalogo, opcoes: opcoes, tema: tema, embrulha: embrulha, fmt: fmt, dominio: dominio, etapas: etapas, temaCompleto: temaCompleto, arrastavel: arrastavel, textos: textos, extras: extras, pendente: pendente, limpaRespostas: limpaRespostas, respostas: respostas, telaExtra: telaExtra, seqComExtras: seqComExtras };
+        return { carregar: carregar, catalogo: catalogo, opcoes: opcoes, tema: tema, embrulha: embrulha, fmt: fmt, dominio: dominio, etapas: etapas, temaCompleto: temaCompleto, arrastavel: arrastavel, textos: textos, extras: extras, pendente: pendente, limpaRespostas: limpaRespostas, respostas: respostas, telaExtra: telaExtra, seqComExtras: seqComExtras, previa: previa, cfgAtual: cfgAtual };
     })();
     window.PLLC = PLLC;
     PLLC.carregar().then(function (cfg) { PLLC.catalogo(LENTES, cfg); });
@@ -439,7 +525,7 @@
     };
     document.body.appendChild(overlay);
     // opções da 1ª tela e cores vindas do painel "Configurar fluxo" (PLLC)
-    PLLC.carregar().then(function (cfg) {
+    PLLC.carregar().then(window.__plcAplica = function (cfg) {
         if (!cfg) return;
         PLLC.opcoes(overlay, 'data-vision', cfg.necessidades, 'b', 'small'); PLLC.textos(cfg);
         PLLC.arrastavel(overlay.querySelector('[data-step="vision"]'), 'data-vision');
@@ -453,6 +539,32 @@
             if (t.borda) s += '.plc-opt,.plc-eye,.plc-secondary{border-color:' + t.borda + '!important}';
             return s;
         });
+    });
+
+    // prévia do painel: pular pra etapa escolhida no mapa
+    PLLC.previa({
+        nec: { attr: 'data-vision', t: 'b', s: 'small' },
+        reaplica: function (cfg) { if (window.__plcAplica) window.__plcAplica(cfg); },
+        ir: function (et) {
+            if (overlay.style.display !== 'flex') open();
+            if (et.indexOf('x:') === 0) {
+                var x = ((PLLC.cfgAtual() || {}).etapas_extra || [])[+et.slice(2)]; if (!x) return;
+                var cont = overlay.querySelector('.plc-step[data-step="vision"]'), el = overlay.querySelector('.plc-step[data-step="extra"]');
+                if (!el && cont) { el = document.createElement('section'); el.className = 'plc-step'; el.setAttribute('data-step', 'extra'); cont.parentNode.insertBefore(el, cont); }
+                if (!el) return;
+                plcExtraAtual = x.id; PLLC.telaExtra(x, el, 'plc', function () {}); _plcShow('extra'); return;
+            }
+            if (et === 'telefone') return _plcShow('contact');
+            if (et === 'tipo') return _plcShow('vision');
+            if (et === 'tratamento') { if (!state.visao || state.visao === 'descanso') state.visao = 'simples'; syncTreatmentOptions(state.visao); return _plcShow('treatment'); }
+            if (et === 'receita') return _plcShow('recipe');
+            if (et === 'conferir') { if (!state.visao || state.visao === 'descanso') state.visao = 'simples'; return goForm(''); }
+            if (et === 'resultado') {
+                state.visao = 'descanso'; state.trat = 'blue'; state.receita = null;
+                window.__PLLC_SEM_EXTRAS = true;
+                try { renderRecommendation(recommend()); } finally { window.__PLLC_SEM_EXTRAS = false; }
+            }
+        }
     });
 
     var plcExtraAtual=null,PLC_ANCORA={vision:'tipo',treatment:'tratamento',recipe:'receita',result:'resultado'};function show(name){var anc=PLC_ANCORA[name],x=anc&&PLLC.pendente(anc);if(x){var cont=overlay&&overlay.querySelector('.plc-step[data-step="vision"]'),el=overlay&&overlay.querySelector('.plc-step[data-step="extra"]');if(!el&&cont){el=document.createElement('section');el.className='plc-step';el.setAttribute('data-step','extra');cont.parentNode.insertBefore(el,cont);}if(el){plcExtraAtual=x.id;PLLC.telaExtra(x,el,'plc',function(resp){track('etapa_extra',{etapa:x.nome||x.titulo,pergunta:x.titulo,resposta:resp});show(name);});_plcShow('extra');return;}}_plcShow(name);}function _plcShow(name){try{plcPassos(name);}catch(_){}$$('.plc-step').forEach(function(s){s.classList.toggle('on',s.dataset.step===name);});var body=$('.plc-body');if(body)body.scrollTop=0;}
