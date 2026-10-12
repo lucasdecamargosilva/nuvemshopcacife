@@ -3,7 +3,7 @@
 
     if (window.__PL_CACIFE_LENS_FLOW__) return;
     var path = String(location.pathname || '').replace(/\/+$/, '').toLowerCase();
-    if (!/^\/produtos\/[^/]+$/.test(path)) return;
+    if (!window.PL_LENTES_PREVIEW && !/^\/produtos\/[^/]+$/.test(path)) return;   // prévia do painel: libera
     var productName = '';
     try { productName = String(window.LS && window.LS.product && window.LS.product.name || ''); } catch (_) { }
     if (!productName) productName = String((document.querySelector('h1.product-name, h1.product__title, h1') || {}).textContent || '');
@@ -37,6 +37,110 @@
         { id:'364696398', variantId:'1588580926', nome:'Par de lentes - Multifocal + Antirreflexo + Anti Blue', preco:619.99, material:'Multifocal', visao:'multifocal', solar:false, semgrau:false, blue:true, foto:false, ar:true, neg:-3, pos:2, cil:2, add:3, img:'https://acdn-us.mitiendanube.com/stores/001/081/093/products/multi-blue-antireflexo-54a56e28a58c6febba17882965318671-1024-1024.png' },
         { id:'364694895', variantId:'1588577432', nome:'Par de lentes - Multifocal + Antirreflexo + Fotossensível', preco:819.99, material:'Multifocal', visao:'multifocal', solar:false, semgrau:false, blue:false, foto:true, ar:true, neg:-3, pos:2, cil:2, add:2, img:'https://acdn-us.mitiendanube.com/stores/001/081/093/products/multifocal-foto-f7b166888a1ad6115b17882961293771-1024-1024.png' }
     ];
+/* ===== PL — fluxo de lentes editável pelo lojista (12/10/2026) =====
+       Painel "Configurar fluxo" da dashboard (e o assistente com IA) grava em lentes_fluxo_config
+       (Supabase, leitura pública). Aqui o widget lê essa linha e aplica, sem mexer na lógica de
+       recomendação da loja:
+         - catálogo: nome / preço / prazo / ligar-desligar de cada lente (chave = ID do produto);
+           lente desligada sai da lista antes da recomendação;
+         - opções da 1ª tela: texto, ordem e ligar-desligar;
+         - cores (tema).
+       Sem config, sem rede ou erro: nada muda. Mesmo bloco em todos os widgets com fluxo de lentes. */
+    var PLLC = window.PLLC || (function () {
+        var SUPA = 'https://quantic-supabase.k5jwra.easypanel.host';
+        var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.pCFnSnrlSUM2EwXi9gxAegpoC-9U0Mjx3iAtROR-E20';
+        var promessa = null;
+        function dominio() { return String(window.PL_LENTES_DOMINIO || location.hostname || '').replace(/^www\./, '').toLowerCase(); }
+        function carregar() {
+            if (promessa) return promessa;
+            promessa = new Promise(function (res) {
+                if (window.__PL_LENTES_CFG_OVERRIDE) { res(window.__PL_LENTES_CFG_OVERRIDE); return; }   // prévia de rascunho
+                var K = 'pllc_cfg_' + dominio(), feito = false;
+                if (!window.PL_LENTES_PREVIEW) {
+                    try { var c = JSON.parse(sessionStorage.getItem(K) || 'null'); if (c && Date.now() - c.t < 300000) { res(c.cfg); return; } } catch (e) {}
+                }
+                var fim = function (cfg) { if (!feito) { feito = true; res(cfg); } };
+                setTimeout(function () { fim(null); }, 3500);
+                try {
+                    fetch(SUPA + '/rest/v1/lentes_fluxo_config?select=config&dominio=eq.' + encodeURIComponent(dominio()), {
+                        headers: { apikey: ANON, Authorization: 'Bearer ' + ANON }, cache: 'no-store'
+                    }).then(function (r) { return r.ok ? r.json() : null; }).then(function (rows) {
+                        var cfg = (rows && rows[0] && rows[0].config) || null;
+                        try { sessionStorage.setItem(K, JSON.stringify({ t: Date.now(), cfg: cfg })); } catch (e) {}
+                        fim(cfg);
+                    }).catch(function () { fim(null); });
+                } catch (e) { fim(null); }
+            });
+            return promessa;
+        }
+        function fmt(t) {
+            var h = String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            return h.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\r?\n/g, '<br>');
+        }
+        // Catálogo: muda as lentes no lugar (o motor de recomendação lê o mesmo array).
+        function catalogo(LENTES, cfg) {
+            if (!cfg || !Array.isArray(cfg.lentes) || !Array.isArray(LENTES)) return;
+            var por = {};
+            cfg.lentes.forEach(function (l) { if (l && l.key != null) por[String(l.key)] = l; });
+            for (var i = LENTES.length - 1; i >= 0; i--) {
+                var L = LENTES[i], c = por[String(L.id)];
+                if (!c) continue;
+                if (c.ativo === false) { LENTES.splice(i, 1); continue; }
+                if (String(c.nome || '').trim()) L.nome = String(c.nome).trim();
+                var p = Number(c.preco); if (isFinite(p) && p > 0) L.preco = p;
+                if (c.prazo != null && c.prazo !== '') { var d = parseInt(c.prazo, 10); if (d > 0 && d < 120) L.prazo = d; }
+            }
+        }
+        // Opções da 1ª tela: texto, ordem e ligar-desligar (botões [attr] dentro de raiz).
+        function opcoes(raiz, attr, lista, selTitulo, selDesc) {
+            if (!Array.isArray(lista) || !lista.length) return;
+            var r = typeof raiz === 'string' ? document.querySelector(raiz) : raiz;
+            if (!r) return;
+            var btns = [].slice.call(r.querySelectorAll('[' + attr + ']'));
+            if (!btns.length) return;
+            var pai = btns[0].parentNode, ancora = btns[btns.length - 1].nextSibling;
+            lista.forEach(function (o) {
+                var b = btns.filter(function (x) { return x.getAttribute(attr) === String(o.key); })[0];
+                if (!b) return;
+                var t = b.querySelector(selTitulo), s = b.querySelector(selDesc);
+                if (t && String(o.titulo || '').trim()) t.textContent = String(o.titulo).trim();
+                if (s && o.desc != null) s.innerHTML = fmt(o.desc);
+                b.style.display = o.ativo === false ? 'none' : '';
+                pai.insertBefore(b, ancora);
+            });
+        }
+        function cor(v) { return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(String(v || '').trim()) ? String(v).trim() : null; }
+        // Cores: modelo(t) devolve o CSS da loja com as cores já resolvidas.
+        function tema(cfg, modelo) {
+            if (!cfg || !cfg.tema || typeof modelo !== 'function') return;
+            var t = {}, ok = false;
+            ['botao', 'botao_texto', 'destaque', 'fundo_opcao', 'borda'].forEach(function (k) { t[k] = cor(cfg.tema[k]); if (t[k]) ok = true; });
+            if (!ok) return;
+            var el = document.getElementById('pllc-tema') || document.createElement('style');
+            el.id = 'pllc-tema';
+            el.textContent = modelo(t);
+            (document.head || document.documentElement).appendChild(el);
+        }
+        // Recomendação: tira opções vazias (lente desligada) e, se não sobrar nenhuma, manda pro atendimento.
+        function embrulha(fn) {
+            if (typeof fn !== 'function' || fn.__pllc) return fn;
+            var w = function () {
+                var r = fn.apply(this, arguments);
+                try {
+                    if (r && Array.isArray(r.opcoes)) {
+                        r.opcoes = r.opcoes.filter(function (o) { return o && (o.lente || o.id); });
+                        if (!r.opcoes.length) return { atendimento: 'fora_grade', olhos: r.olhos };
+                    }
+                } catch (e) {}
+                return r;
+            };
+            w.__pllc = true;
+            return w;
+        }
+        return { carregar: carregar, catalogo: catalogo, opcoes: opcoes, tema: tema, embrulha: embrulha, fmt: fmt, dominio: dominio };
+    })();
+    window.PLLC = PLLC;
+    PLLC.carregar().then(function (cfg) { PLLC.catalogo(LENTES, cfg); });
 
     var state = { visao:null, trat:null, receita:null, lente:null, last:'abriu' };
     var $ = function (s) { return document.querySelector(s); };
@@ -142,6 +246,20 @@
       '<section class="plc-step" data-step="result"><div class="plc-progress"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><span class="plc-label">Sua lente indicada</span><div class="plc-result" id="plc-result"></div><div id="plc-alternatives"></div><button class="plc-primary" id="plc-buy-both">Comprar armação + lente</button><button class="plc-secondary" id="plc-buy-frame">Comprar somente a armação</button><button class="plc-back" data-go="form">revisar receita</button></section>'+
       '</div></div>';
     document.body.appendChild(overlay);
+    // opções da 1ª tela e cores vindas do painel "Configurar fluxo" (PLLC)
+    PLLC.carregar().then(function (cfg) {
+        if (!cfg) return;
+        PLLC.opcoes(overlay, 'data-vision', cfg.necessidades, 'b', 'small');
+        PLLC.tema(cfg, function (t) {
+            var s = '';
+            if (t.botao) s += '.plc-lens-btn,.plc-primary{background:' + t.botao + '!important;border-color:' + t.botao + '!important}';
+            if (t.botao_texto) s += '.plc-lens-btn,.plc-primary{color:' + t.botao_texto + '!important}';
+            if (t.destaque) s += '.plc-progress i.on{background:' + t.destaque + '!important}.plc-opt:hover{border-color:' + t.destaque + '!important}.plc-result{border-color:' + t.destaque + '!important}.plc-spinner{border-top-color:' + t.destaque + '!important}';
+            if (t.fundo_opcao) s += '.plc-opt:hover,.plc-note,.plc-why{background:' + t.fundo_opcao + '!important}';
+            if (t.borda) s += '.plc-opt,.plc-eye,.plc-secondary{border-color:' + t.borda + '!important}';
+            return s;
+        });
+    });
 
     function show(name){$$('.plc-step').forEach(function(s){s.classList.toggle('on',s.dataset.step===name);});var body=$('.plc-body');if(body)body.scrollTop=0;}
     function open(){overlay.style.display='flex';document.documentElement.style.overflow='hidden';state={visao:null,trat:null,receita:null,lente:null,last:'abriu'};var saved='';try{saved=localStorage.getItem('pl_last_phone')||'';}catch(_){}$('#plc-phone').value=maskPhone(saved.replace(/\D/g,''));show('contact');track('abriu',{origem:'botao_produto',escopo:'catalogo'});track('pediu_telefone',{});}
