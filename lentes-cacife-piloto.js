@@ -129,6 +129,42 @@
             el.id = 'pllc-tema';
             el.textContent = modelo(t);
             (document.head || document.documentElement).appendChild(el);
+            var g = document.getElementById('pllc-tema2'); if (g) g.parentNode.appendChild(g);   // o completo fica por último
+        }
+        // ---- tema completo: uma cor por elemento + cantos + fonte (vence os atalhos de cor) ----
+            var PL_SLOTS = ['fundo_tela', 'fundo_janela', 'texto', 'texto_secundario', 'titulo', 'progresso_fundo', 'progresso',
+            'opcao_fundo', 'opcao_borda', 'opcao_foco', 'opcao_foco_fundo', 'botao', 'botao_texto', 'botao_secundario',
+            'botao_secundario_texto', 'link', 'preco', 'resultado_borda', 'aviso_fundo', 'aviso_texto', 'selo_fundo', 'selo_texto',
+            'campo_fundo', 'campo_borda'];
+        var PL_FONTES = { 'DM Sans': 'sans-serif', 'Inter': 'sans-serif', 'Poppins': 'sans-serif', 'Montserrat': 'sans-serif', 'Lato': 'sans-serif',
+            'Nunito': 'sans-serif', 'Raleway': 'sans-serif', 'Work Sans': 'sans-serif', 'Josefin Sans': 'sans-serif', 'Quicksand': 'sans-serif',
+            'Playfair Display': 'serif', 'Lora': 'serif', 'Cormorant Garamond': 'serif', 'Libre Baskerville': 'serif' };
+        function plCssGranular(t, mapa) {
+            if (!t || !mapa) return '';
+            var css = '', hex = function (v) { return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(String(v || '').trim()) ? String(v).trim() : null; };
+            PL_SLOTS.forEach(function (k) {
+                var v = hex(t[k]); if (!v || !mapa[k]) return;
+                mapa[k].forEach(function (r) { css += r[0] + '{' + r[1] + ':' + v + '!important}'; });
+            });
+            var raio = parseInt(t.raio, 10);
+            if (t.raio !== undefined && t.raio !== '' && raio >= 0 && raio <= 40 && mapa.raio) mapa.raio.forEach(function (s) { css += s + '{border-radius:' + raio + 'px!important}'; });
+            if (t.fonte && PL_FONTES[t.fonte] && mapa.fonte) {
+                var id = 'pl-fonte-' + t.fonte.replace(/\s+/g, '-').toLowerCase();
+                if (!document.getElementById(id)) {
+                    var l = document.createElement('link'); l.id = id; l.rel = 'stylesheet';
+                    l.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(t.fonte).replace(/%20/g, '+') + ':wght@400;500;600;700&display=swap';
+                    (document.head || document.documentElement).appendChild(l);
+                }
+                mapa.fonte.forEach(function (s) { css += s + '{font-family:\'' + t.fonte + '\',' + PL_FONTES[t.fonte] + '!important}'; });
+            }
+            return css;
+        }
+        function temaCompleto(cfg, mapa) {
+            if (!cfg || !cfg.tema) return;
+            var css = plCssGranular(cfg.tema, mapa); if (!css) return;
+            var el = document.getElementById('pllc-tema2') || document.createElement('style');
+            el.id = 'pllc-tema2'; el.textContent = css;
+            (document.head || document.documentElement).appendChild(el);
         }
         // Recomendação: tira opções vazias (lente desligada) e, se não sobrar nenhuma, manda pro atendimento.
         function embrulha(fn) {
@@ -146,7 +182,7 @@
             w.__pllc = true;
             return w;
         }
-        return { carregar: carregar, catalogo: catalogo, opcoes: opcoes, tema: tema, embrulha: embrulha, fmt: fmt, dominio: dominio, etapas: etapas };
+        return { carregar: carregar, catalogo: catalogo, opcoes: opcoes, tema: tema, embrulha: embrulha, fmt: fmt, dominio: dominio, etapas: etapas, temaCompleto: temaCompleto };
     })();
     window.PLLC = PLLC;
     PLLC.carregar().then(function (cfg) { PLLC.catalogo(LENTES, cfg); });
@@ -254,11 +290,40 @@
       '<section class="plc-step" data-step="form"><div class="plc-progress"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><span class="plc-label">Confira sua receita</span><div class="plc-note" id="plc-read-note" style="display:none"></div><div class="plc-eyes"><div class="plc-eye"><strong>Olho direito (OD)</strong><div class="plc-field"><label>Esférico</label><select data-r="odEsf"></select></div><div class="plc-field"><label>Cilíndrico</label><select data-r="odCil"></select></div><div class="plc-field"><label>Eixo</label><select data-r="odEixo"></select></div></div><div class="plc-eye"><strong>Olho esquerdo (OE)</strong><div class="plc-field"><label>Esférico</label><select data-r="oeEsf"></select></div><div class="plc-field"><label>Cilíndrico</label><select data-r="oeCil"></select></div><div class="plc-field"><label>Eixo</label><select data-r="oeEixo"></select></div></div></div><div class="plc-field" id="plc-add-wrap" style="display:none"><label>Adição (grau de perto)</label><select data-r="adicao"></select></div><div class="plc-error" id="plc-form-error"></div><button class="plc-primary" id="plc-recommend">Ver minha lente</button><button class="plc-back" data-go="recipe">voltar</button></section>'+
       '<section class="plc-step" data-step="result"><div class="plc-progress"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><span class="plc-label">Sua lente indicada</span><div class="plc-result" id="plc-result"></div><div id="plc-alternatives"></div><button class="plc-primary" id="plc-buy-both">Comprar armação + lente</button><button class="plc-secondary" id="plc-buy-frame">Comprar somente a armação</button><button class="plc-back" data-go="form">revisar receita</button></section>'+
       '</div></div>';
+    var PL_MAPA_TEMA = {
+        fundo_tela: [['.plc-overlay', 'background']],
+        fundo_janela: [['.plc-card', 'background']],
+        texto: [['.plc-card', 'color'], ['.plc-opt', 'color'], ['.plc-opt b', 'color'], ['.plc-result h3', 'color']],
+        texto_secundario: [['.plc-opt small', 'color'], ['.plc-result small', 'color'], ['.plc-field label', 'color']],
+        titulo: [['.plc-label', 'color'], ['.plc-head b', 'color']],
+        progresso_fundo: [['.plc-progress i', 'background']],
+        progresso: [['.plc-progress i.on', 'background']],
+        opcao_fundo: [['.plc-opt', 'background']],
+        opcao_borda: [['.plc-opt', 'border-color'], ['.plc-eye', 'border-color']],
+        opcao_foco: [['.plc-opt:hover', 'border-color']],
+        opcao_foco_fundo: [['.plc-opt:hover', 'background']],
+        botao: [['.plc-lens-btn', 'background'], ['.plc-primary', 'background'], ['.plc-lens-btn', 'border-color'], ['.plc-primary', 'border-color']],
+        botao_texto: [['.plc-lens-btn', 'color'], ['.plc-primary', 'color']],
+        botao_secundario: [['.plc-secondary', 'background'], ['.plc-secondary', 'border-color']],
+        botao_secundario_texto: [['.plc-secondary', 'color']],
+        link: [['.plc-back', 'color'], ['.plc-close', 'color']],
+        preco: [['.plc-price', 'color']],
+        resultado_borda: [['.plc-result', 'border-color']],
+        aviso_fundo: [['.plc-note', 'background'], ['.plc-why', 'background']],
+        aviso_texto: [['.plc-note', 'color'], ['.plc-why', 'color']],
+        selo_fundo: [['.plc-tag', 'background'], ['.plc-badge', 'background']],
+        selo_texto: [['.plc-tag', 'color'], ['.plc-badge', 'color']],
+        campo_fundo: [['.plc-field input', 'background'], ['.plc-field select', 'background'], ['#plc-phone', 'background']],
+        campo_borda: [['.plc-field input', 'border-color'], ['.plc-field select', 'border-color'], ['#plc-phone', 'border-color']],
+        raio: ['.plc-opt', '.plc-primary', '.plc-secondary', '.plc-result', '.plc-lens-btn', '.plc-eye', '.plc-card'],
+        fonte: ['.plc-card', '.plc-card *', '.plc-lens-btn']
+    };
     document.body.appendChild(overlay);
     // opções da 1ª tela e cores vindas do painel "Configurar fluxo" (PLLC)
     PLLC.carregar().then(function (cfg) {
         if (!cfg) return;
         PLLC.opcoes(overlay, 'data-vision', cfg.necessidades, 'b', 'small');
+        PLLC.temaCompleto(cfg, PL_MAPA_TEMA);   // uma cor por elemento, cantos e fonte
         PLLC.tema(cfg, function (t) {
             var s = '';
             if (t.botao) s += '.plc-lens-btn,.plc-primary{background:' + t.botao + '!important;border-color:' + t.botao + '!important}';
@@ -273,10 +338,11 @@
     function show(name){$$('.plc-step').forEach(function(s){s.classList.toggle('on',s.dataset.step===name);});var body=$('.plc-body');if(body)body.scrollTop=0;}
     /* Etapas editáveis pelo painel (PLLC.etapas, 12/10/2026): WhatsApp no início, tratamento padrão, receita antes do tratamento. */
     function plcTratPadrao(){var p=PLLC.etapas().tratamento.padrao;var ok=$$('[data-treatment]').filter(function(b){return b.style.display!=='none'&&!b.disabled;}).map(function(b){return b.dataset.treatment;});return ok.indexOf(p)!==-1?p:(ok[0]||p);}
-    function plcDepoisDaVisao(){var e=PLLC.etapas();state.trat=null;state.receitaOk=false;if(e.receita.posicao==='inicio'){show('recipe');return;}syncTreatmentOptions(state.visao);if(e.tratamento.ativo===false){state.trat=plcTratPadrao();track('tratamento',{visao:state.visao,trat:state.trat,padrao:true});show('recipe');return;}show('treatment');}
-    function plcDepoisDaReceita(){state.receitaOk=true;if(!state.trat){syncTreatmentOptions(state.visao);if(PLLC.etapas().tratamento.ativo===false){state.trat=plcTratPadrao();track('tratamento',{visao:state.visao,trat:state.trat,padrao:true});}else{show('treatment');return;}}renderRecommendation(recommend());}
+    function plcPrimeira(){return PLLC.etapas().receita.posicao==='primeiro'?'recipe':'vision';}
+    function plcDepoisDaVisao(){var e=PLLC.etapas();state.trat=null;if(state.receitaOk){if(state.visao==='multifocal'&&state.receita&&state.receita.adicao==null){state.receitaOk=false;goForm('Para lentes multifocais precisamos da <b>adição</b> (o grau de perto). Confira e preencha.');return;}plcDepoisDaReceita();return;}state.receitaOk=false;if(e.receita.posicao==='inicio'){show('recipe');return;}syncTreatmentOptions(state.visao);if(e.tratamento.ativo===false){state.trat=plcTratPadrao();track('tratamento',{visao:state.visao,trat:state.trat,padrao:true});show('recipe');return;}show('treatment');}
+    function plcDepoisDaReceita(){state.receitaOk=true;if(!state.visao){show('vision');return;}if(!state.trat){syncTreatmentOptions(state.visao);if(PLLC.etapas().tratamento.ativo===false){state.trat=plcTratPadrao();track('tratamento',{visao:state.visao,trat:state.trat,padrao:true});}else{show('treatment');return;}}renderRecommendation(recommend());}
     function plcPedeTelefone(){return PLLC.etapas().telefone.ativo!==false;}
-    function open(){overlay.style.display='flex';document.documentElement.style.overflow='hidden';state={visao:null,trat:null,receita:null,lente:null,last:'abriu'};var saved='';try{saved=localStorage.getItem('pl_last_phone')||'';}catch(_){}$('#plc-phone').value=maskPhone(saved.replace(/\D/g,''));show(plcPedeTelefone()?'contact':'vision');track('abriu',{origem:'botao_produto',escopo:'catalogo'});track('pediu_telefone',{});}
+    function open(){overlay.style.display='flex';document.documentElement.style.overflow='hidden';state={visao:null,trat:null,receita:null,lente:null,last:'abriu'};var saved='';try{saved=localStorage.getItem('pl_last_phone')||'';}catch(_){}$('#plc-phone').value=maskPhone(saved.replace(/\D/g,''));show(plcPedeTelefone()?'contact':plcPrimeira());track('abriu',{origem:'botao_produto',escopo:'catalogo'});track('pediu_telefone',{});}
     function close(){overlay.style.display='none';document.documentElement.style.overflow='';if(state.last&&!/carrinho|so_armacao/.test(state.last))track('saiu',{ultimo_step:state.last});}
     $('.plc-close').addEventListener('click',close);overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
 
@@ -287,14 +353,14 @@
     $('[data-r="adicao"]').innerHTML=range(.75,3.5,.25);
 
     function getVal(k){var el=$('[data-r="'+k+'"]');return el&&el.value!==''?Number(el.value):null;}
-    function readForm(){var r={odEsf:getVal('odEsf'),odCil:getVal('odCil')||0,odEixo:getVal('odEixo'),oeEsf:getVal('oeEsf'),oeCil:getVal('oeCil')||0,oeEixo:getVal('oeEixo')};if(r.odEsf==null||r.oeEsf==null)return null;if(state.visao==='multifocal'){r.adicao=getVal('adicao');if(r.adicao==null)return null;}return r;}
+    function readForm(){var r={odEsf:getVal('odEsf'),odCil:getVal('odCil')||0,odEixo:getVal('odEixo'),oeEsf:getVal('oeEsf'),oeCil:getVal('oeCil')||0,oeEixo:getVal('oeEixo')};if(r.odEsf==null||r.oeEsf==null)return null;if(state.visao==='multifocal'||!state.visao){r.adicao=getVal('adicao');if(state.visao==='multifocal'&&r.adicao==null)return null;}return r;}
     function nearest(k,value){if(value==null)return;var s=$('[data-r="'+k+'"]');if(!s)return;var best='',diff=Infinity;[].slice.call(s.options).forEach(function(o){if(o.value==='')return;var d=Math.abs(Number(o.value)-Number(value));if(d<diff){diff=d;best=o.value;}});s.value=best;}
     function maskPhone(v){var d=v.replace(/\D/g,'').slice(0,11);if(d.length<=2)return d?'('+d:'';var cut=d.length===11?7:6;return '('+d.slice(0,2)+') '+d.slice(2,cut)+(d.length>cut?'-'+d.slice(cut):'');}
     $('#plc-phone').addEventListener('input',function(){this.value=maskPhone(this.value);$('#plc-phone-error').style.display='none';});
     $('#plc-phone').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();$('#plc-contact-next').click();}});
-    $('#plc-contact-next').addEventListener('click',function(){if(!validPhone())return;track('telefone',{origem:'fluxo_lentes'});show('vision');});
+    $('#plc-contact-next').addEventListener('click',function(){if(!validPhone())return;track('telefone',{origem:'fluxo_lentes'});show(plcPrimeira());});
 
-    function goForm(note){$('#plc-add-wrap').style.display=state.visao==='multifocal'?'block':'none';$('#plc-read-note').style.display=note?'block':'none';$('#plc-read-note').innerHTML=note||'';show('form');}
+    function goForm(note){$('#plc-add-wrap').style.display=(state.visao==='multifocal'||!state.visao)?'block':'none';$('#plc-read-note').style.display=note?'block':'none';$('#plc-read-note').innerHTML=note||'';show('form');}
     function readPrescription(file){show('loading');var fr=new FileReader();fr.onload=function(){var b64=String(fr.result).split(',')[1];fetch(WEBHOOK_RECEITA,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mime:file.type||'image/jpeg',path:sid()+'/'+Date.now()+'.'+((file.type||'image/jpeg').split('/')[1]||'jpg')})}).then(function(r){return r.json();}).then(function(r){if(!r.ok)throw new Error(r.erro||'leitura');var d=r.dados||{};nearest('odEsf',d.odEsf);nearest('oeEsf',d.oeEsf);nearest('odCil',d.odCil);nearest('oeCil',d.oeCil);nearest('odEixo',d.odEixo);nearest('oeEixo',d.oeEixo);nearest('adicao',d.adicao);track('receita_lida',{ok:true,confianca:d.confianca||null});goForm(d.confianca==='baixa'?'A leitura ficou com baixa confiança. <strong>Confira todos os números.</strong>':'Preenchemos o que encontramos. <strong>Confira antes de continuar.</strong>');}).catch(function(){track('receita_lida',{ok:false});goForm('Não conseguimos ler automaticamente. <strong>Digite os dados da receita.</strong>');});};fr.onerror=function(){goForm('Não conseguimos abrir o arquivo. Digite os dados abaixo.');};fr.readAsDataURL(file);}
 
     function renderRecommendation(rec){var box=$('#plc-result'),alts=$('#plc-alternatives'),back=$('[data-step="result"] .plc-back');alts.innerHTML='';back.dataset.go=state.visao==='descanso'?'vision':'form';back.textContent=state.visao==='descanso'?'alterar necessidade':'revisar receita';if(!rec||rec.fora){state.lente=null;box.innerHTML='<h3>Esta lente precisa ser feita sob medida</h3><div class="plc-why">Seu grau ou tratamento não está disponível como produto pronto. Você pode levar a armação e a equipe da Cacife entra em contato para conferir a melhor opção.</div>';$('#plc-buy-both').textContent='Levar armação e falar com a Cacife';}else{var pool=[rec.lente].concat(rec.outras||[]);state.lente=rec.lente;box.innerHTML=(rec.lente.img?'<img src="'+rec.lente.img+'" alt="">':'')+'<h3>'+esc(rec.lente.nome)+'</h3><small>'+esc(rec.lente.material)+'</small><div class="plc-price">'+brl(rec.lente.preco)+'</div><div class="plc-why">'+esc(rec.porque)+'</div><div class="plc-note">A Cacife confere sua receita antes da montagem.</div>';$('#plc-buy-both').textContent='Comprar armação + lente';var outras=pool.filter(function(l){return l.id!==state.lente.id;});if(outras.length){alts.innerHTML='<div class="plc-alt-title">Outras opções do mesmo tratamento</div>'+outras.map(function(l){return '<button class="plc-opt plc-alt" data-lens="'+l.id+'"><img src="'+l.img+'" alt=""><span><b>'+esc(l.nome)+'</b><small>'+brl(l.preco)+'</small></span></button>';}).join('');$$('[data-lens]').forEach(function(b){b.addEventListener('click',function(){var l=pool.find(function(x){return x.id===b.dataset.lens;});if(l){renderRecommendation({lente:l,outras:pool.filter(function(x){return x.id!==l.id;}),porque:rec.porque});track('alternativa',{lente:l.nome,preco:l.preco});}});});}}if(state.visao==='descanso'){box.insertAdjacentHTML('beforeend','<div class="plc-field" style="margin-top:14px"><label>WhatsApp para receber ajuda, se necessário</label><input id="plc-phone-result" type="tel" inputmode="numeric" maxlength="15" placeholder="(11) 99999-9999"><div class="plc-phone-error" id="plc-phone-result-error">Informe um celular válido com DDD.</div></div>');var rp=$('#plc-phone-result'),saved='';try{saved=localStorage.getItem('pl_last_phone')||'';}catch(_){}rp.value=maskPhone(saved);rp.addEventListener('input',function(){this.value=maskPhone(this.value);$('#plc-phone-result-error').style.display='none';});}show('result');track('recomendou',{lente:state.lente?state.lente.nome:null,preco:state.lente?state.lente.preco:null,fora:rec&&rec.fora||null,visao:state.visao,trat:state.trat,grau:state.receita});}
