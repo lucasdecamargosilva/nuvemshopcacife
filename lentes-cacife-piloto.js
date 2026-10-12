@@ -108,9 +108,20 @@
             var btns = [].slice.call(r.querySelectorAll('[' + attr + ']'));
             if (!btns.length) return;
             var pai = btns[0].parentNode, ancora = btns[btns.length - 1].nextSibling;
+            // opções criadas pelo lojista ({key, base}): cópia do botão da opção-base, que segue o caminho dela (13/10/2026)
+            var keys = lista.map(function (o) { return String(o.key); });
+            btns.forEach(function (x) { if (x.getAttribute('data-pl-copia') && keys.indexOf(x.getAttribute('data-pl-op')) === -1) x.style.display = 'none'; });
             lista.forEach(function (o) {
-                var b = btns.filter(function (x) { return x.getAttribute(attr) === String(o.key); })[0];
+                var k = String(o.key);
+                var b = btns.filter(function (x) { return x.getAttribute('data-pl-op') === k; })[0] ||
+                    btns.filter(function (x) { return !x.getAttribute('data-pl-copia') && x.getAttribute(attr) === k; })[0];
+                if (!b && o.base) {
+                    var modelo = btns.filter(function (x) { return !x.getAttribute('data-pl-copia') && x.getAttribute(attr) === String(o.base); })[0];
+                    if (!modelo) return;
+                    b = modelo.cloneNode(true); b.setAttribute('data-pl-copia', '1'); btns.push(b);
+                }
                 if (!b) return;
+                b.setAttribute('data-pl-op', k);
                 var t = b.querySelector(selTitulo), s = b.querySelector(selDesc);
                 if (t && String(o.titulo || '').trim()) t.textContent = String(o.titulo).trim();
                 if (s && o.desc != null) s.innerHTML = fmt(o.desc);
@@ -209,7 +220,7 @@
     /* ---- Prévia ao vivo do painel (13/10/2026): só dentro da prévia "Configurar fluxo" (iframe do painel).
        Recebe a config sem recarregar (pl-lentes-cfg-live), pula pra etapa escolhida no mapa (pl-lentes-ir) e deixa
        editar os textos clicando neles (manda pl-lentes-edit pro painel). Na loja de verdade nada disso liga. ---- */
-    var _pv = null, _pvEditar = true;
+    var _pv = null, _pvEditar = false;   // prévia só pra ver e testar: edição é pelo painel (13/10/2026)
     function cfgAtual() { return atual || window.__PL_LENTES_CFG_OVERRIDE || null; }
     function _pvValor(ref) {
         var p = String(ref).split(':'), c = cfgAtual() || {};
@@ -242,7 +253,7 @@
         });
         var nc = _pv.nec;
         if (nc) (c.necessidades || []).forEach(function (n, i) {
-            [].forEach.call(document.querySelectorAll('[' + nc.attr + '="' + n.key + '"]'), function (b) { _pvMarca(b.querySelector(nc.t), 'n:' + i + ':titulo'); _pvMarca(b.querySelector(nc.s), 'n:' + i + ':desc'); });
+            [].forEach.call(document.querySelectorAll('[data-pl-op="' + n.key + '"]'), function (b) { _pvMarca(b.querySelector(nc.t), 'n:' + i + ':titulo'); _pvMarca(b.querySelector(nc.s), 'n:' + i + ':desc'); });
         });
         [].forEach.call(document.querySelectorAll('[data-pllc-xid]'), function (el) {
             var i = el.getAttribute('data-pllc-xid');
@@ -289,6 +300,31 @@
         new MutationObserver(function () { clearTimeout(_pv._t); _pv._t = setTimeout(marcaEditaveis, 120); }).observe(document.body, { childList: true, subtree: true });
         setTimeout(marcaEditaveis, 400);
         window.parent.postMessage({ type: 'pl-lentes-live-ok' }, '*');
+    }
+    /* Tratamentos (13/10/2026): o lojista cria tratamentos (cfg.tratamentos_extra: {key, titulo, desc, base, ativo}) — cópia do botão
+       do tratamento-base, que segue as regras dele — e remove tratamentos (cfg.tratamentos_ocultos: [keys]). */
+    function botoesExtra(raiz, attr, lista, ocultos, selT, selS) {
+        var r = typeof raiz === 'string' ? document.querySelector(raiz) : raiz; if (!r) return;
+        lista = Array.isArray(lista) ? lista : []; ocultos = Array.isArray(ocultos) ? ocultos : [];
+        var keys = lista.map(function (o) { return String(o && o.key); });
+        [].forEach.call(r.querySelectorAll('[data-pl-copia][' + attr + ']'), function (x) { if (keys.indexOf(x.getAttribute('data-pl-op')) === -1) x.parentNode.removeChild(x); });
+        var css = '';
+        lista.forEach(function (o) {
+            if (!o || !o.base || !String(o.titulo || '').trim()) return;
+            var k = String(o.key), b = r.querySelector('[data-pl-op="' + k + '"]');
+            if (!b) {
+                var m = r.querySelector('[' + attr + '="' + o.base + '"]:not([data-pl-copia])'); if (!m) return;
+                b = m.cloneNode(true); b.setAttribute('data-pl-copia', '1'); b.setAttribute('data-pl-op', k);
+                var irm = r.querySelectorAll('[' + attr + ']'), ult = irm[irm.length - 1]; ult.parentNode.insertBefore(b, ult.nextSibling);
+            }
+            b.setAttribute(attr, String(o.base));
+            var t = b.querySelector(selT), s = b.querySelector(selS);
+            if (t) t.textContent = String(o.titulo).trim(); if (s) s.innerHTML = fmt(o.desc || '');
+            if (o.ativo === false) css += '[data-pl-op="' + k + '"]{display:none!important}';
+        });
+        ocultos.forEach(function (k) { css += '[' + attr + '="' + k + '"]:not([data-pl-copia]){display:none!important}'; });
+        var st = document.getElementById('pllc-trat-css') || document.createElement('style');
+        st.id = 'pllc-trat-css'; st.textContent = css; (document.head || document.documentElement).appendChild(st);
     }
         function cor(v) { return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(String(v || '').trim()) ? String(v).trim() : null; }
         // Cores: modelo(t) devolve o CSS da loja com as cores já resolvidas.
@@ -340,7 +376,7 @@
         }
         // Prévia do painel (rascunho): arrastar as opções da 1ª tela na própria prévia; a nova ordem volta pro painel.
             function arrastavel(raiz, attr) {
-            if (!window.PL_LENTES_PREVIEW || !window.__PL_LENTES_CFG_OVERRIDE || window.parent === window) return;
+            if (!window.PL_LENTES_PREVIEW || !window.__PL_LENTES_CFG_OVERRIDE || window.parent === window || !_pvEditar) return;
             var r = typeof raiz === 'string' ? document.querySelector(raiz) : raiz;
             if (!r || r.__pllcDnd) return;
             r.__pllcDnd = true;
@@ -366,7 +402,7 @@
                     var lista = [].slice.call(r.querySelectorAll('[' + attr + ']'));
                     var de = lista.indexOf(arrastado), para = lista.indexOf(b);
                     b.parentNode.insertBefore(arrastado, de < para ? b.nextSibling : b);
-                    var ordem = [].slice.call(r.querySelectorAll('[' + attr + ']')).map(function (x) { return x.getAttribute(attr); });
+                    var ordem = [].slice.call(r.querySelectorAll('[' + attr + ']')).map(function (x) { return x.getAttribute('data-pl-op') || x.getAttribute(attr); });
                     try { window.parent.postMessage({ type: 'pl-lentes-ordem', lista: 'necessidades', ordem: ordem }, '*'); } catch (x) {}
                 });
             });
@@ -387,7 +423,7 @@
             w.__pllc = true;
             return w;
         }
-        return { carregar: carregar, catalogo: catalogo, opcoes: opcoes, tema: tema, embrulha: embrulha, fmt: fmt, dominio: dominio, etapas: etapas, temaCompleto: temaCompleto, arrastavel: arrastavel, textos: textos, extras: extras, pendente: pendente, limpaRespostas: limpaRespostas, respostas: respostas, telaExtra: telaExtra, seqComExtras: seqComExtras, previa: previa, cfgAtual: cfgAtual };
+        return { carregar: carregar, catalogo: catalogo, opcoes: opcoes, tema: tema, embrulha: embrulha, fmt: fmt, dominio: dominio, etapas: etapas, temaCompleto: temaCompleto, arrastavel: arrastavel, textos: textos, extras: extras, pendente: pendente, limpaRespostas: limpaRespostas, respostas: respostas, telaExtra: telaExtra, seqComExtras: seqComExtras, previa: previa, cfgAtual: cfgAtual, botoesExtra: botoesExtra };
     })();
     window.PLLC = PLLC;
     PLLC.carregar().then(function (cfg) { PLLC.catalogo(LENTES, cfg); });
@@ -527,7 +563,7 @@
     // opções da 1ª tela e cores vindas do painel "Configurar fluxo" (PLLC)
     PLLC.carregar().then(window.__plcAplica = function (cfg) {
         if (!cfg) return;
-        PLLC.opcoes(overlay, 'data-vision', cfg.necessidades, 'b', 'small'); PLLC.textos(cfg);
+        PLLC.opcoes(overlay, 'data-vision', cfg.necessidades, 'b', 'small'); PLLC.textos(cfg); PLLC.botoesExtra(overlay.querySelector('[data-step="treatment"]'), 'data-treatment', cfg.tratamentos_extra, cfg.tratamentos_ocultos, 'b', 'small');
         PLLC.arrastavel(overlay.querySelector('[data-step="vision"]'), 'data-vision');
         PLLC.temaCompleto(cfg, PL_MAPA_TEMA);   // uma cor por elemento, cantos e fonte
         PLLC.tema(cfg, function (t) {
@@ -604,7 +640,7 @@
     function lockButton(btn){if(btn.disabled)return false;btn.disabled=true;btn.textContent='Adicionando…';setTimeout(function(){btn.disabled=false;btn.textContent='Tentar novamente';},12000);return true;}
     function buyBoth(btn){if(!validPhone()||!lockButton(btn))return;if(!state.lente){track('so_armacao',{motivo:'sob_medida'});buyFrame();return;}track('carrinho',{lente:state.lente.nome,preco:state.lente.preco,fase:'armacao_mais_lente',grau:state.receita});fetch('/comprar/',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest'},body:'add_to_cart='+encodeURIComponent(state.lente.id)+'&quantity=1&add_to_cart_enhanced=1'}).then(function(r){if(!r.ok)throw new Error('http_'+r.status);return r.json();}).then(function(r){if(!r.success)throw new Error('cart');buyFrame();}).catch(function(){btn.disabled=false;btn.textContent='Tentar novamente';alert('Não conseguimos adicionar a lente ao carrinho. Tente novamente.');});}
 
-    overlay.addEventListener('click',function(e){var t=e.target.closest('[data-go],[data-vision],[data-treatment],[data-manual],[data-no-recipe]');if(!t)return;e.preventDefault();if(t.dataset.go){show(t.dataset.go);return;}if(t.dataset.vision){state.visao=t.dataset.vision;track('visao',{visao:state.visao});if(state.visao==='descanso'){state.trat='blue';state.receita=null;renderRecommendation(recommend());}else{plcDepoisDaVisao();}return;}if(t.dataset.treatment){state.trat=t.dataset.treatment;track('tratamento',{visao:state.visao,trat:state.trat});if(state.receitaOk){renderRecommendation(recommend());return;}show('recipe');return;}if(t.dataset.manual){track('receita_metodo',{metodo:'digitar'});goForm('');return;}if(t.dataset.noRecipe){track('sem_receita_whatsapp',{visao:state.visao,trat:state.trat});window.open('https://wa.me/'+WHATSAPP_LOJA+'?text='+encodeURIComponent('Olá! Não tenho receita e quero ajuda para escolher a lente da '+product().nome+'.'),'_blank');return;}});
+    overlay.addEventListener('click',function(e){var t=e.target.closest('[data-go],[data-vision],[data-treatment],[data-manual],[data-no-recipe]');if(!t)return;e.preventDefault();if(t.dataset.go){show(t.dataset.go);return;}if(t.dataset.vision){state.visao=t.dataset.vision;state.opcao=t.getAttribute('data-pl-op')||state.visao;state.tratOp=null;track('visao',{visao:state.visao,opcao:state.opcao});if(state.visao==='descanso'){state.trat='blue';state.receita=null;renderRecommendation(recommend());}else{plcDepoisDaVisao();}return;}if(t.dataset.treatment){state.trat=t.dataset.treatment;state.tratOp=t.getAttribute('data-pl-op')||state.trat;track('tratamento',{visao:state.visao,trat:state.trat,tratamento:state.tratOp});if(state.receitaOk){renderRecommendation(recommend());return;}show('recipe');return;}if(t.dataset.manual){track('receita_metodo',{metodo:'digitar'});goForm('');return;}if(t.dataset.noRecipe){track('sem_receita_whatsapp',{visao:state.visao,trat:state.trat});window.open('https://wa.me/'+WHATSAPP_LOJA+'?text='+encodeURIComponent('Olá! Não tenho receita e quero ajuda para escolher a lente da '+product().nome+'.'),'_blank');return;}});
     $('#plc-upload').addEventListener('click',function(){track('receita_metodo',{metodo:'enviar'});$('#plc-file').click();});
     $('#plc-file').addEventListener('change',function(){var f=this.files&&this.files[0];if(f)readPrescription(f);});
     $('#plc-recommend').addEventListener('click',function(){var r=readForm(),err=$('#plc-form-error');if(!r){err.textContent='Preencha o grau esférico dos dois olhos'+(state.visao==='multifocal'?' e a adição.':'.');err.style.display='block';return;}var tel=phone();if(plcPedeTelefone()&&(!/^\d{10,11}$/.test(tel)||!/^[1-9]{2}/.test(tel)||(tel.length===11&&tel.charAt(2)!=='9'))){$('#plc-phone-error').style.display='block';return;}err.style.display='none';state.receita=r;if(tel){try{localStorage.setItem('pl_last_phone',tel);}catch(_){}}plcDepoisDaReceita();});
