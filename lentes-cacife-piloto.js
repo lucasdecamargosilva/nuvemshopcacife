@@ -47,6 +47,7 @@
          - cores (tema).
        Sem config, sem rede ou erro: nada muda. Mesmo bloco em todos os widgets com fluxo de lentes. */
     var PLLC = window.PLLC || (function () {
+        var atual = null;   // config já carregada (etapas() lê daqui)
         var SUPA = 'https://quantic-supabase.k5jwra.easypanel.host';
         var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.pCFnSnrlSUM2EwXi9gxAegpoC-9U0Mjx3iAtROR-E20';
         var promessa = null;
@@ -71,7 +72,15 @@
                     }).catch(function () { fim(null); });
                 } catch (e) { fim(null); }
             });
+            promessa.then(function (c) { atual = c; });
             return promessa;
+        }
+        // Etapas editáveis pelo painel (com os padrões de hoje quando a loja não mexeu)
+        function etapas() {
+            var e = { telefone: { ativo: true }, tratamento: { ativo: true, padrao: '' }, receita: { posicao: 'final' } };
+            var s = (atual && atual.etapas) || {};
+            Object.keys(e).forEach(function (k) { if (s[k] && typeof s[k] === 'object') for (var x in s[k]) e[k][x] = s[k][x]; });
+            return e;
         }
         function fmt(t) {
             var h = String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -137,7 +146,7 @@
             w.__pllc = true;
             return w;
         }
-        return { carregar: carregar, catalogo: catalogo, opcoes: opcoes, tema: tema, embrulha: embrulha, fmt: fmt, dominio: dominio };
+        return { carregar: carregar, catalogo: catalogo, opcoes: opcoes, tema: tema, embrulha: embrulha, fmt: fmt, dominio: dominio, etapas: etapas };
     })();
     window.PLLC = PLLC;
     PLLC.carregar().then(function (cfg) { PLLC.catalogo(LENTES, cfg); });
@@ -262,7 +271,12 @@
     });
 
     function show(name){$$('.plc-step').forEach(function(s){s.classList.toggle('on',s.dataset.step===name);});var body=$('.plc-body');if(body)body.scrollTop=0;}
-    function open(){overlay.style.display='flex';document.documentElement.style.overflow='hidden';state={visao:null,trat:null,receita:null,lente:null,last:'abriu'};var saved='';try{saved=localStorage.getItem('pl_last_phone')||'';}catch(_){}$('#plc-phone').value=maskPhone(saved.replace(/\D/g,''));show('contact');track('abriu',{origem:'botao_produto',escopo:'catalogo'});track('pediu_telefone',{});}
+    /* Etapas editáveis pelo painel (PLLC.etapas, 12/10/2026): WhatsApp no início, tratamento padrão, receita antes do tratamento. */
+    function plcTratPadrao(){var p=PLLC.etapas().tratamento.padrao;var ok=$$('[data-treatment]').filter(function(b){return b.style.display!=='none'&&!b.disabled;}).map(function(b){return b.dataset.treatment;});return ok.indexOf(p)!==-1?p:(ok[0]||p);}
+    function plcDepoisDaVisao(){var e=PLLC.etapas();state.trat=null;state.receitaOk=false;if(e.receita.posicao==='inicio'){show('recipe');return;}syncTreatmentOptions(state.visao);if(e.tratamento.ativo===false){state.trat=plcTratPadrao();track('tratamento',{visao:state.visao,trat:state.trat,padrao:true});show('recipe');return;}show('treatment');}
+    function plcDepoisDaReceita(){state.receitaOk=true;if(!state.trat){syncTreatmentOptions(state.visao);if(PLLC.etapas().tratamento.ativo===false){state.trat=plcTratPadrao();track('tratamento',{visao:state.visao,trat:state.trat,padrao:true});}else{show('treatment');return;}}renderRecommendation(recommend());}
+    function plcPedeTelefone(){return PLLC.etapas().telefone.ativo!==false;}
+    function open(){overlay.style.display='flex';document.documentElement.style.overflow='hidden';state={visao:null,trat:null,receita:null,lente:null,last:'abriu'};var saved='';try{saved=localStorage.getItem('pl_last_phone')||'';}catch(_){}$('#plc-phone').value=maskPhone(saved.replace(/\D/g,''));show(plcPedeTelefone()?'contact':'vision');track('abriu',{origem:'botao_produto',escopo:'catalogo'});track('pediu_telefone',{});}
     function close(){overlay.style.display='none';document.documentElement.style.overflow='';if(state.last&&!/carrinho|so_armacao/.test(state.last))track('saiu',{ultimo_step:state.last});}
     $('.plc-close').addEventListener('click',close);overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
 
@@ -287,14 +301,14 @@
 
     function getProductForm(){var f=document.querySelector('#product_form');return f&&f.querySelector('[name="add_to_cart"]')?f:null;}
     function buyFrame(){var src=getProductForm();if(!src){location.href='/produtos/armacao-para-grau-orus-preto/';return;}var form=document.createElement('form');form.method='post';form.action=src.getAttribute('action')||'/comprar/';form.style.display='none';src.querySelectorAll('input,select,textarea').forEach(function(el){if(!el.name||((el.type==='radio'||el.type==='checkbox')&&!el.checked))return;var h=document.createElement('input');h.type='hidden';h.name=el.name;h.value=el.value;form.appendChild(h);});if(!form.querySelector('[name="quantity"]')){var q=document.createElement('input');q.type='hidden';q.name='quantity';q.value='1';form.appendChild(q);}document.body.appendChild(form);form.submit();}
-    function validPhone(){var tel=phone(),err=$('#plc-phone-result-error')||$('#plc-phone-error');if(!/^\d{10,11}$/.test(tel)||!/^[1-9]{2}/.test(tel)||(tel.length===11&&tel.charAt(2)!=='9')){if(err)err.style.display='block';return false;}try{localStorage.setItem('pl_last_phone',tel);}catch(_){}return true;}
+    function validPhone(){if(!plcPedeTelefone())return true;var tel=phone(),err=$('#plc-phone-result-error')||$('#plc-phone-error');if(!/^\d{10,11}$/.test(tel)||!/^[1-9]{2}/.test(tel)||(tel.length===11&&tel.charAt(2)!=='9')){if(err)err.style.display='block';return false;}try{localStorage.setItem('pl_last_phone',tel);}catch(_){}return true;}
     function lockButton(btn){if(btn.disabled)return false;btn.disabled=true;btn.textContent='Adicionando…';setTimeout(function(){btn.disabled=false;btn.textContent='Tentar novamente';},12000);return true;}
     function buyBoth(btn){if(!validPhone()||!lockButton(btn))return;if(!state.lente){track('so_armacao',{motivo:'sob_medida'});buyFrame();return;}track('carrinho',{lente:state.lente.nome,preco:state.lente.preco,fase:'armacao_mais_lente',grau:state.receita});fetch('/comprar/',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest'},body:'add_to_cart='+encodeURIComponent(state.lente.id)+'&quantity=1&add_to_cart_enhanced=1'}).then(function(r){if(!r.ok)throw new Error('http_'+r.status);return r.json();}).then(function(r){if(!r.success)throw new Error('cart');buyFrame();}).catch(function(){btn.disabled=false;btn.textContent='Tentar novamente';alert('Não conseguimos adicionar a lente ao carrinho. Tente novamente.');});}
 
-    overlay.addEventListener('click',function(e){var t=e.target.closest('[data-go],[data-vision],[data-treatment],[data-manual],[data-no-recipe]');if(!t)return;e.preventDefault();if(t.dataset.go){show(t.dataset.go);return;}if(t.dataset.vision){state.visao=t.dataset.vision;track('visao',{visao:state.visao});if(state.visao==='descanso'){state.trat='blue';state.receita=null;renderRecommendation(recommend());}else{syncTreatmentOptions(state.visao);show('treatment');}return;}if(t.dataset.treatment){state.trat=t.dataset.treatment;track('tratamento',{visao:state.visao,trat:state.trat});show('recipe');return;}if(t.dataset.manual){track('receita_metodo',{metodo:'digitar'});goForm('');return;}if(t.dataset.noRecipe){track('sem_receita_whatsapp',{visao:state.visao,trat:state.trat});window.open('https://wa.me/'+WHATSAPP_LOJA+'?text='+encodeURIComponent('Olá! Não tenho receita e quero ajuda para escolher a lente da '+product().nome+'.'),'_blank');return;}});
+    overlay.addEventListener('click',function(e){var t=e.target.closest('[data-go],[data-vision],[data-treatment],[data-manual],[data-no-recipe]');if(!t)return;e.preventDefault();if(t.dataset.go){show(t.dataset.go);return;}if(t.dataset.vision){state.visao=t.dataset.vision;track('visao',{visao:state.visao});if(state.visao==='descanso'){state.trat='blue';state.receita=null;renderRecommendation(recommend());}else{plcDepoisDaVisao();}return;}if(t.dataset.treatment){state.trat=t.dataset.treatment;track('tratamento',{visao:state.visao,trat:state.trat});if(state.receitaOk){renderRecommendation(recommend());return;}show('recipe');return;}if(t.dataset.manual){track('receita_metodo',{metodo:'digitar'});goForm('');return;}if(t.dataset.noRecipe){track('sem_receita_whatsapp',{visao:state.visao,trat:state.trat});window.open('https://wa.me/'+WHATSAPP_LOJA+'?text='+encodeURIComponent('Olá! Não tenho receita e quero ajuda para escolher a lente da '+product().nome+'.'),'_blank');return;}});
     $('#plc-upload').addEventListener('click',function(){track('receita_metodo',{metodo:'enviar'});$('#plc-file').click();});
     $('#plc-file').addEventListener('change',function(){var f=this.files&&this.files[0];if(f)readPrescription(f);});
-    $('#plc-recommend').addEventListener('click',function(){var r=readForm(),err=$('#plc-form-error');if(!r){err.textContent='Preencha o grau esférico dos dois olhos'+(state.visao==='multifocal'?' e a adição.':'.');err.style.display='block';return;}var tel=phone();if(!/^\d{10,11}$/.test(tel)||!/^[1-9]{2}/.test(tel)||(tel.length===11&&tel.charAt(2)!=='9')){$('#plc-phone-error').style.display='block';return;}err.style.display='none';state.receita=r;try{localStorage.setItem('pl_last_phone',tel);}catch(_){}renderRecommendation(recommend());});
+    $('#plc-recommend').addEventListener('click',function(){var r=readForm(),err=$('#plc-form-error');if(!r){err.textContent='Preencha o grau esférico dos dois olhos'+(state.visao==='multifocal'?' e a adição.':'.');err.style.display='block';return;}var tel=phone();if(plcPedeTelefone()&&(!/^\d{10,11}$/.test(tel)||!/^[1-9]{2}/.test(tel)||(tel.length===11&&tel.charAt(2)!=='9'))){$('#plc-phone-error').style.display='block';return;}err.style.display='none';state.receita=r;if(tel){try{localStorage.setItem('pl_last_phone',tel);}catch(_){}}plcDepoisDaReceita();});
     $('#plc-buy-both').addEventListener('click',function(){buyBoth(this);});
     $('#plc-buy-frame').addEventListener('click',function(){if(!validPhone()||!lockButton(this))return;track('so_armacao',{visao:state.visao});buyFrame();});
 
