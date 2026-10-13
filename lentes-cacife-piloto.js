@@ -685,6 +685,8 @@
     $('#plc-buy-both').addEventListener('click',function(){buyBoth(this);});
     $('#plc-buy-frame').addEventListener('click',function(){if(!validPhone()||!lockButton(this))return;track('so_armacao',{visao:state.visao});buyFrame();});
 
-    function insertButtons(){var form=getProductForm(),buy=form&&form.querySelector('.js-addtocart,.btn-add-to-cart,[data-component="product.add-to-cart"]');if(!buy||form.querySelector('.plc-lens-btn'))return !!buy;var b=document.createElement('button');b.type='button';b.className='plc-lens-btn';b.textContent='Escolher lentes e comprar';b.addEventListener('click',function(e){e.preventDefault();open();});buy.parentNode.insertBefore(b,buy.nextSibling);return true;}
+    /* 13/10/2026: o fluxo so aparece se a loja ligou no dashboard (config.geral.ativo === true; ausente = desligado). */
+    function plcFluxoLigado(){if(window.PL_LENTES_PREVIEW)return true;var c=PLLC.cfgAtual();return !!(c&&c.geral&&c.geral.ativo===true);}
+    function insertButtons(){if(!plcFluxoLigado())return false;var form=getProductForm(),buy=form&&form.querySelector('.js-addtocart,.btn-add-to-cart,[data-component="product.add-to-cart"]');if(!buy||form.querySelector('.plc-lens-btn'))return !!buy;var b=document.createElement('button');b.type='button';b.className='plc-lens-btn';b.textContent='Escolher lentes e comprar';b.addEventListener('click',function(e){e.preventDefault();open();});buy.parentNode.insertBefore(b,buy.nextSibling);return true;}
     if(!insertButtons()){var attempts=0,timer=setInterval(function(){if(insertButtons()||++attempts>30)clearInterval(timer);},300);}
 })();
